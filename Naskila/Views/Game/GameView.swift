@@ -61,7 +61,7 @@ struct GameView: View {
                             
                             Spacer()
                             // Bouquet
-                            BouquetView()
+                            BouquetView() // or FinishedBouquetView() if completeOrder()
                             
                             Spacer()
                             
@@ -92,24 +92,4 @@ struct GameView: View {
 
 #Preview {
     GameView()
-}
-
-struct BouquetView: View {
-    var body: some View {
-        ZStack {
-            Image(.paper1)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 200)
-            
-            // Picked flowers
-            HStack(spacing: -20) {
-                ForEach(0..<4) { _ in
-                    Image(.flowerRed1)
-                        .resizable()
-                        .frame(width: 50, height: 85)
-                }
-            }
-        }
-    }
 }
