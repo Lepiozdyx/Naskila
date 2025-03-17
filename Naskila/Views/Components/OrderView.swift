@@ -27,7 +27,7 @@ struct OrderView: View {
                                         .font(.system(size: 18, weight: .heavy, design: .rounded))
                                         .foregroundStyle(.red)
                                     
-                                    Image(.flowerRed1)
+                                    Image(.flowerRed)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 35)
@@ -42,7 +42,7 @@ struct OrderView: View {
                                         .foregroundStyle(.white)
                                         .shadow(color: .black, radius: 0.7)
                                     
-                                    Image(.flowerWhite1)
+                                    Image(.flowerWhite)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 35)
@@ -56,7 +56,7 @@ struct OrderView: View {
                                         .font(.system(size: 18, weight: .heavy, design: .rounded))
                                         .foregroundStyle(.blue)
                                     
-                                    Image(.flowerBlue1)
+                                    Image(.flowerBlue)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 35)
@@ -70,7 +70,7 @@ struct OrderView: View {
                                         .font(.system(size: 18, weight: .heavy, design: .rounded))
                                         .foregroundStyle(.pink)
                                     
-                                    Image(.flowerPink1)
+                                    Image(.flowerPink)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 35)

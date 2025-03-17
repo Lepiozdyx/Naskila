@@ -7,23 +7,8 @@
 
 import SwiftUI
 
-enum DryBoxColorType {
-    case redWhite
-    case bluePink
-}
-
 struct DryBoxButtonView: View {
-    var colorType: DryBoxColorType = .redWhite
     let action: () -> Void
-    
-    private var flowerImages: [ImageResource] {
-        switch colorType {
-        case .redWhite:
-            return [.dryFlowerRed1, .dryFlowerWhite1, .dryFlowerRed1, .dryFlowerWhite1]
-        case .bluePink:
-            return [.dryFlowerBlue1, .dryFlowerPink1, .dryFlowerBlue1, .dryFlowerPink1]
-        }
-    }
     
     var body: some View {
         Button {
@@ -31,15 +16,45 @@ struct DryBoxButtonView: View {
         } label: {
             Image(.drybox)
                 .resizable()
-                .frame(width: 170, height: 90)
+                .frame(width: 170, height: 150)
                 .overlay {
-                    HStack(spacing: 2) {
-                        ForEach(0..<flowerImages.count, id: \.self) { index in
-                            Image(flowerImages[index])
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25)
-                        }
+                    HStack(spacing: -10) {
+                        Image(.dryFlowerRed)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .scaleEffect(x: -1)
+                        
+                        Image(.dryFlowerBlue)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                        
+                        Image(.dryFlowerRed)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                        
+                        Image(.dryFlowerWhite)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                        
+                        Image(.dryFlowerBlue)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .scaleEffect(x: -1)
+                        
+                        Image(.dryFlowerWhite)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                        
+                        Image(.dryFlowerPink)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
                     }
                 }
         }

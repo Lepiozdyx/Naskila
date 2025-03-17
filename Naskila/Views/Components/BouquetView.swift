@@ -40,11 +40,11 @@ struct BouquetView: View {
             // Show flowers
             let allFlowers = bouquet.allFlowers
             if !allFlowers.isEmpty {
-                HStack(spacing: -50) {
+                HStack(spacing: -20) {
                     ForEach(allFlowers) { flower in
                         Image(flower.image)
                             .resizable()
-                            .frame(width: 45, height: 85)
+                            .frame(width: 45, height: 105)
                     }
                 }
                 .frame(maxWidth: 200)
@@ -64,8 +64,8 @@ struct BouquetView: View {
                 Image(glitterImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200)
-                    .opacity(0.5)
+                    .frame(width: 100)
+                    .offset(y: -40)
             }
             
             // Show card if present
@@ -82,16 +82,18 @@ struct BouquetView: View {
 
 #Preview {
     let bouquet = Bouquet()
-    let redFlower = FlowerItem(color: .red, image: .flowerRed1)
-    let blueFlower = FlowerItem(color: .blue, image: .flowerBlue2)
-    let pinkFlower = FlowerItem(color: .pink, image: .flowerPink1)
+    let redFlower = FlowerItem(color: .red, image: .flowerRed)
+    let blueFlower = FlowerItem(color: .blue, image: .flowerBlue)
+    let pinkFlower = FlowerItem(color: .pink, image: .flowerPink)
     
     var previewBouquet = bouquet
     previewBouquet.addFlower(item: redFlower)
     previewBouquet.addFlower(item: blueFlower)
     previewBouquet.addFlower(item: pinkFlower)
-    previewBouquet.addAccessory(item: AccessoryItem(type: .wrapping, image: .paper2))
+    previewBouquet.addAccessory(item: AccessoryItem(type: .wrapping, image: .paper22))
     previewBouquet.addAccessory(item: AccessoryItem(type: .ribbon, image: .ribbon1))
+    previewBouquet.addAccessory(item: AccessoryItem(type: .glitter, image: .glitter4))
+    previewBouquet.addAccessory(item: AccessoryItem(type: .card, image: .card1))
     
     return BouquetView(bouquet: previewBouquet)
 }
@@ -108,45 +110,45 @@ struct FinishedBouquetView: View {
             // Picked flowers
             VStack(spacing: -45) {
                 HStack(spacing: -30) {
-                    Image(.flowerPink1)
+                    Image(.flowerPink)
                         .resizable()
                         .frame(width: 45, height: 85)
-                    Image(.flowerRed2)
+                    Image(.flowerRed)
                         .resizable()
                         .frame(width: 60, height: 85)
                         .scaleEffect(x: -1)
-                    Image(.flowerPink2)
+                    Image(.flowerPink)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .offset(y: -25)
-                    Image(.flowerPink2)
+                    Image(.flowerPink)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .offset(y: -25)
                         .scaleEffect(x: -1)
-                    Image(.flowerRed1)
+                    Image(.flowerRed)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .offset(y: -15)
-                    Image(.flowerBlue1)
+                    Image(.flowerBlue)
                         .resizable()
                         .frame(width: 55, height: 85)
                     
                 }
                 
                 HStack(spacing: -20) {
-                    Image(.flowerWhite1)
+                    Image(.flowerWhite)
                         .resizable()
                         .frame(width: 45, height: 85)
-                    Image(.flowerWhite2)
+                    Image(.flowerWhite)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .offset(y: -35)
-                    Image(.flowerBlue2)
+                    Image(.flowerBlue)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .offset(y: -25)
-                    Image(.flowerBlue3)
+                    Image(.flowerBlue)
                         .resizable()
                         .frame(width: 45, height: 85)
                         .scaleEffect(x: -1)

@@ -22,16 +22,11 @@ struct VaseButtonView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: size)
-                .overlay(alignment: .topTrailing) {
-                    if isDisabled {
-                        TimerView()
-                    }
-                }
                 .background {
                     // Display flowers in the vase
                     HStack(spacing: -25) {
                         ForEach(0..<count, id: \.self) { _ in
-                            Image(color.displayName.first ?? .flowerRed1)
+                            Image(color.displayName)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 35)
@@ -40,6 +35,11 @@ struct VaseButtonView: View {
                     }
                     .offset(x: 5)
                 }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if isDisabled {
+                TimerView()
+            }
         }
         .buttonStyle(.plain)
         .disabled(isDisabled || count == 0)
@@ -52,7 +52,23 @@ struct VaseButtonView: View {
         VaseButtonView(
             size: 60,
             color: .red,
-            count: 3,
+            count: 4,
+            isDisabled: false,
+            action: {}
+        )
+        
+        VaseButtonView(
+            size: 60,
+            color: .pink,
+            count: 4,
+            isDisabled: false,
+            action: {}
+        )
+        
+        VaseButtonView(
+            size: 60,
+            color: .white,
+            count: 4,
             isDisabled: false,
             action: {}
         )
@@ -61,7 +77,7 @@ struct VaseButtonView: View {
         VaseButtonView(
             size: 60,
             color: .blue,
-            count: 2,
+            count: 4,
             isDisabled: true,
             action: {}
         )

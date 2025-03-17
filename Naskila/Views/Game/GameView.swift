@@ -43,8 +43,22 @@ struct GameView: View {
                             .frame(height: height * 0.6)
                         
                         HStack(alignment: .bottom) {
-                            // Card button
+                            // MARK: Card button
                             VStack(spacing: 0) {
+                                AccessoryButtonView(
+                                    image: .card3,
+                                    size: 40,
+                                    isActive: viewModel.isAccessoryActive(.card)
+                                ) {
+                                    viewModel.addAccessory(.card)
+                                }
+                                AccessoryButtonView(
+                                    image: .card2,
+                                    size: 40,
+                                    isActive: viewModel.isAccessoryActive(.card)
+                                ) {
+                                    viewModel.addAccessory(.card)
+                                }
                                 AccessoryButtonView(
                                     image: .card1,
                                     size: 40,
@@ -55,7 +69,7 @@ struct GameView: View {
                             }
                             .padding(.trailing)
                             
-                            // Accessories buttons
+                            // MARK: Accessories buttons
                             VStack(spacing: 0) {
                                 AccessoryButtonView(
                                     image: .paperbox,
@@ -83,7 +97,7 @@ struct GameView: View {
                             }
                             .padding(.trailing)
                             
-                            // First pair of vases (red and pink)
+                            // MARK: First pair of vases
                             VStack(spacing: 30) {
                                 // Red vase
                                 VaseButtonView(
@@ -106,19 +120,16 @@ struct GameView: View {
                             
                             Spacer()
                             
-                            // Bouquet view
+                            // MARK: Bouquet view
                             if viewModel.currentBouquet.allFlowers.isEmpty && viewModel.currentBouquet.allAccessories.isEmpty {
-                                Image(.paper1)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: 200)
+//                                EmptyView()
                             } else {
                                 BouquetView(bouquet: viewModel.currentBouquet)
                             }
                             
                             Spacer()
                             
-                            // Second pair of vases (blue and pink)
+                            // MARK: Second pair of vases
                             VStack(spacing: 30) {
                                 // Blue vase
                                 VaseButtonView(
@@ -139,18 +150,11 @@ struct GameView: View {
                                 )
                             }
                             
-                            // Dry flowers buttons
+                            // MARK: Add Dry flowers to vases button
                             VStack(spacing: 4) {
-                                // Red and white flowers
                                 DryBoxButtonView(action: {
-                                    // Add red and white flowers alternately
                                     viewModel.addFlowerToVase(color: .red)
                                     viewModel.addFlowerToVase(color: .white)
-                                })
-                                
-                                // Blue and pink flowers
-                                DryBoxButtonView(colorType: .bluePink, action: {
-                                    // Add blue and pink flowers alternately
                                     viewModel.addFlowerToVase(color: .blue)
                                     viewModel.addFlowerToVase(color: .pink)
                                 })
