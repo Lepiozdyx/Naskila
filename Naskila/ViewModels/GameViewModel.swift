@@ -20,6 +20,7 @@ class GameViewModel: ObservableObject {
     @Published var remainingTime: Double
     @Published var settings: GameSettings
     @Published var customerTransition: CustomerTransition = .none
+    @Published var bouquetPackagingState: BouquetPackagingState = .notPacked
     
     // MARK: - Приватные свойства
     private var timer: AnyCancellable?
@@ -61,6 +62,7 @@ class GameViewModel: ObservableObject {
         currentOrder = Order.random()
         currentCustomer = Customer.random()
         currentBouquet = Bouquet()
+        bouquetPackagingState = .notPacked
         
         // Сброс ваз
         for i in 0..<vases.count {
@@ -202,38 +204,53 @@ class GameViewModel: ObservableObject {
     
     /// Обрабатывает завершение заказа
     private func completeOrder() {
-        // Увеличиваем счетчик обслуженных клиентов
-        customersServed += 1
-        
-        // Анимация ухода текущего клиента
-        customerTransition = .leaving
-        
-        // Задержка для анимации
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
+            // Запускаем анимацию упаковки
+            self.bouquetPackagingState = .packing
             
-            // Проверяем, достигнута ли цель по количеству клиентов
-            if self.customersServed >= GameConstants.customersPerLevel {
-                self.completeLevel()
-                return
-            }
-            
-            // Генерируем новый заказ и нового клиента
-            self.currentOrder = Order.random()
-            self.currentCustomer = Customer.random()
-            
-            // Сбрасываем букет
-            self.currentBouquet.reset()
-            
-            // Анимация появления нового клиента
-            self.customerTransition = .entering
-            
-            // Сброс анимации
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.customerTransition = .none
+            // Первый этап упаковки
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+                guard let self = self else { return }
+                self.bouquetPackagingState = .packed
+                
+                // После завершения упаковки продолжаем с анимацией клиента
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self else { return }
+                    
+                    // Увеличиваем счетчик обслуженных клиентов
+                    self.customersServed += 1
+                    
+                    // Анимация ухода текущего клиента
+                    self.customerTransition = .leaving
+                    
+                    // Задержка для анимации
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                        guard let self = self else { return }
+                        
+                        // Проверяем, достигнута ли цель по количеству клиентов
+                        if self.customersServed >= GameConstants.customersPerLevel {
+                            self.completeLevel()
+                            return
+                        }
+                        
+                        // Генерируем новый заказ и нового клиента
+                        self.currentOrder = Order.random()
+                        self.currentCustomer = Customer.random()
+                        
+                        // Сбрасываем букет и состояние упаковки
+                        self.currentBouquet.reset()
+                        self.bouquetPackagingState = .notPacked
+                        
+                        // Анимация появления нового клиента
+                        self.customerTransition = .entering
+                        
+                        // Сброс анимации
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.customerTransition = .none
+                        }
+                    }
+                }
             }
         }
-    }
     
     // MARK: - Вспомогательные методы
     
