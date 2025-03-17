@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct WinView: View {
+    let nextLevelAction: () -> Void
+    let exitAction: () -> Void
+    
     var body: some View {
         ZStack {
             Image(.fon2)
@@ -46,7 +49,7 @@ struct WinView: View {
                 
                 HStack(spacing: 40) {
                     Button {
-                        // back to menu action
+                        exitAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.red)
@@ -61,7 +64,7 @@ struct WinView: View {
                     }
                     
                     Button {
-                        // next level action
+                        nextLevelAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.green)
@@ -82,5 +85,8 @@ struct WinView: View {
 }
 
 #Preview {
-    WinView()
+    WinView(
+        nextLevelAction: {},
+        exitAction: {}
+    )
 }

@@ -116,27 +116,36 @@ struct Order {
     
     // Метод для генерации случайного заказа
     static func random() -> Order {
-        let maxFlowers = 4 // Максимальное количество цветов одного цвета
+        // Максимальное общее количество цветов в заказе
+        let maxTotalFlowers = 4
         
-        // Гарантируем, что в заказе будет хотя бы один цветок
-        let noFlowers = [0, 0, 0, 0]
-        var flowersCount = noFlowers
+        // Генерируем общее количество цветов (от 1 до 4)
+        let totalFlowersInOrder = Int.random(in: 1...maxTotalFlowers)
         
-        while flowersCount == noFlowers {
-            flowersCount = [
-                Int.random(in: 0...maxFlowers),
-                Int.random(in: 0...maxFlowers),
-                Int.random(in: 0...maxFlowers),
-                Int.random(in: 0...maxFlowers)
-            ]
+        // Распределяем цветы по типам
+        var flowerTypes = [Int](repeating: 0, count: 4) // red, white, blue, pink
+        
+        // Гарантируем, что будет хотя бы один цветок (случайного типа)
+        let firstFlowerType = Int.random(in: 0..<4)
+        flowerTypes[firstFlowerType] = 1
+        
+        // Распределяем оставшиеся цветы (если есть)
+        var remainingFlowers = totalFlowersInOrder - 1
+        while remainingFlowers > 0 {
+            let randomType = Int.random(in: 0..<4)
+            // Ограничиваем максимальное количество цветов одного типа до 3
+            if flowerTypes[randomType] < 3 {
+                flowerTypes[randomType] += 1
+                remainingFlowers -= 1
+            }
         }
         
         return Order(
-            redFlowers: flowersCount[0],
-            whiteFlowers: flowersCount[1],
-            blueFlowers: flowersCount[2],
-            pinkFlowers: flowersCount[3],
-            needWrapping: Bool.random(),
+            redFlowers: flowerTypes[0],
+            whiteFlowers: flowerTypes[1],
+            blueFlowers: flowerTypes[2],
+            pinkFlowers: flowerTypes[3],
+            needWrapping: true,
             needRibbon: Bool.random(),
             needGlitter: Bool.random(),
             needCard: Bool.random()

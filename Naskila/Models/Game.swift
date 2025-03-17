@@ -79,7 +79,27 @@ struct Customer: Identifiable {
     let id: Int
     let imageName: String
     
-    // Генерирует случайного клиента из доступных
+    // Свойство для получения ImageResource
+    var imageResource: ImageResource {
+        switch id {
+        case 1: return .customer1
+        case 2: return .customer2
+        case 3: return .customer3
+        case 4: return .customer4
+        case 5: return .customer5
+        case 6: return .customer6
+        case 7: return .customer7
+        case 8: return .customer8
+        case 9: return .customer9
+        case 10: return .customer10
+        case 11: return .customer11
+        case 12: return .customer12
+        case 13: return .customer13
+        default: return .customer1
+        }
+    }
+    
+    // Статический метод для генерации случайного клиента
     static func random() -> Customer {
         let customerId = Int.random(in: 1...GameConstants.totalCustomersCount)
         return Customer(

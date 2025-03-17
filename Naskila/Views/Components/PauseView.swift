@@ -8,6 +8,13 @@
 import SwiftUI
 
 struct PauseView: View {
+    let soundEnabled: Bool
+    let musicEnabled: Bool
+    let toggleSound: () -> Void
+    let toggleMusic: () -> Void
+    let resumeAction: () -> Void
+    let exitAction: () -> Void
+    
     var body: some View {
         ZStack {
             Image(.fon2)
@@ -39,20 +46,37 @@ struct PauseView: View {
                                 }
                         }
                         .overlay(alignment: .topTrailing) {
-                            CloseButtonView()
+                            Button {
+                                resumeAction()
+                            } label: {
+                                Image(.closeButton)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 50)
+                            }
                         }
                 }
             
             VStack(spacing: 20) {
                 HStack(spacing: 40) {
-                    SettingsControlButtonView(image: .musicicon, imageSize: 40, isOn: false, action: {})
+                    SettingsControlButtonView(
+                        image: .musicicon,
+                        imageSize: 40,
+                        isOn: musicEnabled,
+                        action: toggleMusic
+                    )
                     
-                    SettingsControlButtonView(image: .soundicon, imageSize: 35, isOn: true, action: {})
+                    SettingsControlButtonView(
+                        image: .soundicon,
+                        imageSize: 35,
+                        isOn: soundEnabled,
+                        action: toggleSound
+                    )
                 }
                 
                 HStack(spacing: 40) {
                     Button {
-                        // back to menu action
+                        exitAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.red)
@@ -67,7 +91,7 @@ struct PauseView: View {
                     }
                     
                     Button {
-                        // resume action
+                        resumeAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.green)
@@ -88,5 +112,12 @@ struct PauseView: View {
 }
 
 #Preview {
-    PauseView()
+    PauseView(
+        soundEnabled: true,
+        musicEnabled: false,
+        toggleSound: {},
+        toggleMusic: {},
+        resumeAction: {},
+        exitAction: {}
+    )
 }

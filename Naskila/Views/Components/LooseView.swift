@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct LooseView: View {
+    let restartAction: () -> Void
+    let exitAction: () -> Void
+    
     var body: some View {
         ZStack {
             Image(.fon2)
@@ -21,7 +24,7 @@ struct LooseView: View {
             
             VStack(spacing: 10) {
                 Button {
-                    // back to menu action
+                    exitAction()
                 } label: {
                     RoundedRectangle(cornerRadius: 15)
                         .foregroundStyle(.red)
@@ -36,7 +39,7 @@ struct LooseView: View {
                 }
                 
                 Button {
-                    // restart level action
+                    restartAction()
                 } label: {
                     RoundedRectangle(cornerRadius: 15)
                         .foregroundStyle(.green)
@@ -57,5 +60,8 @@ struct LooseView: View {
 }
 
 #Preview {
-    LooseView()
+    LooseView(
+        restartAction: {},
+        exitAction: {}
+    )
 }

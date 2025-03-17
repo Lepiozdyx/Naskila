@@ -7,12 +7,26 @@
 
 import SwiftUI
 
+enum DryBoxColorType {
+    case redWhite
+    case bluePink
+}
+
 struct DryBoxButtonView: View {
-    let action: () -> ()
+    var colorType: DryBoxColorType = .redWhite
+    let action: () -> Void
+    
+    private var flowerImages: [ImageResource] {
+        switch colorType {
+        case .redWhite:
+            return [.dryFlowerRed1, .dryFlowerWhite1, .dryFlowerRed1, .dryFlowerWhite1]
+        case .bluePink:
+            return [.dryFlowerBlue1, .dryFlowerPink1, .dryFlowerBlue1, .dryFlowerPink1]
+        }
+    }
     
     var body: some View {
         Button {
-            // pick dry flower and place to the vase
             action()
         } label: {
             Image(.drybox)
@@ -20,15 +34,13 @@ struct DryBoxButtonView: View {
                 .frame(width: 170, height: 90)
                 .overlay {
                     HStack(spacing: 2) {
-                        // red and pink dry flower images
-                        ForEach(0..<4) { _ in
-                            Image(.dryFlowerRed1)
+                        ForEach(0..<flowerImages.count, id: \.self) { index in
+                            Image(flowerImages[index])
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 25)
                         }
                     }
-                    
                 }
         }
         .buttonStyle(.plain)

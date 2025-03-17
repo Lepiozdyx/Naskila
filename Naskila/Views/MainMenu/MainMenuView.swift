@@ -17,7 +17,7 @@ struct MainMenuView: View {
                     Spacer()
                     
                     NavigationLink {
-                        // GameView()
+                         GameView()
                     } label: {
                         Image(.start)
                             .resizable()

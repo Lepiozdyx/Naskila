@@ -10,6 +10,15 @@ import SwiftUI
 struct AmountCounterView: View {
     let badge: ImageResource
     let amount: Int
+    var total: Int? = nil
+    
+    var displayedText: String {
+        if let total = total {
+            return "\(amount)/\(total)"
+        } else {
+            return "\(amount)"
+        }
+    }
     
     var body: some View {
         Image(.frame)
@@ -22,7 +31,7 @@ struct AmountCounterView: View {
                     .scaledToFit()
             }
             .overlay {
-                Text("\(amount)")
+                Text(displayedText)
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .offset(x: -10)
             }

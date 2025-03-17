@@ -8,21 +8,29 @@
 import SwiftUI
 
 struct TopBarView: View {
-    let pauseAction: () -> ()
+    let order: Order
+    let customersServed: Int
+    let totalCustomers: Int
+    let currency: Int
+    let pauseAction: () -> Void
     
     var body: some View {
         VStack {
             HStack(alignment: .top) {
-                // OrderView()
-                OrderView()
+                // Order view
+                OrderView(order: order)
                 
                 Spacer()
                 
-                // Динамически обновляемый счетчик покупателей
-                AmountCounterView(badge: .person, amount: 3)
+                // Customers counter
+                AmountCounterView(
+                    badge: .person,
+                    amount: customersServed,
+                    total: totalCustomers
+                )
                 
-                // Динамически обновляемый счетчик очков/валюты
-                AmountCounterView(badge: .coin, amount: 150)
+                // Currency counter
+                AmountCounterView(badge: .coin, amount: currency)
                 
                 Button {
                     pauseAction()
@@ -35,7 +43,6 @@ struct TopBarView: View {
                 .padding(.leading)
             }
             Spacer()
-            
         }
         .padding(.top)
         .padding(.horizontal)
@@ -43,5 +50,11 @@ struct TopBarView: View {
 }
 
 #Preview {
-    TopBarView(pauseAction: {})
+    TopBarView(
+        order: Order.random(),
+        customersServed: 3,
+        totalCustomers: 8,
+        currency: 150,
+        pauseAction: {}
+    )
 }

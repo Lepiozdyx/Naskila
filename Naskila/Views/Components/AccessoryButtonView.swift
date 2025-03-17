@@ -10,7 +10,8 @@ import SwiftUI
 struct AccessoryButtonView: View {
     let image: ImageResource
     let size: CGFloat
-    let action: () -> ()
+    let isActive: Bool
+    let action: () -> Void
     
     var body: some View {
         Button {
@@ -26,5 +27,19 @@ struct AccessoryButtonView: View {
 }
 
 #Preview {
-    AccessoryButtonView(image: .paperbox, size: 50, action: {})
+    HStack {
+        // Active button
+        AccessoryButtonView(
+            image: .paperbox,
+            size: 60,
+            isActive: true
+        ) {}
+        
+        // Inactive button
+        AccessoryButtonView(
+            image: .ribbonbox,
+            size: 60,
+            isActive: false
+        ) {}
+    }
 }
