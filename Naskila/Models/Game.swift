@@ -9,8 +9,8 @@ import Foundation
 
 struct GameConstants {
     static let timePerLevel: TimeInterval = 60 // 1 минута на уровень
-    static let customersPerLevel: Int = 5 // 8 клиентов на уровень
-    static let vaseRechargeTime: TimeInterval = 5 // 10 секунд на перезарядку вазы
+    static let customersPerLevel: Int = 5 // 5 клиентов на уровень
+    static let vaseRechargeTime: TimeInterval = 1 // 5 секунд на перезарядку вазы
     static let maxFlowersPerVase: Int = 4 // Максимум 4 цветка в вазе
     static let victoryReward: Int = 200 // 200 очков за победу
     static let totalCustomersCount: Int = 13 // Всего клиентов (для выбора случайных изображений)

@@ -131,7 +131,6 @@ struct GameView: View {
                                     .frame(width: 200, height: 200)
                                 }
                             }
-                            .frame(width: 200, height: 200) // Фиксированный размер для стабильности
                             
                             Spacer()
                             
