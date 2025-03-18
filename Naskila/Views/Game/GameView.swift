@@ -144,16 +144,11 @@ struct GameView: View {
                             Spacer()
                             
                             // MARK: Bouquet view
-                            ZStack {
-                                // Показываем букет с правильным состоянием упаковки
-                                if !viewModel.currentBouquet.allFlowers.isEmpty {
-                                    BouquetView(
-                                        bouquet: viewModel.currentBouquet,
-                                        packagingState: viewModel.bouquetPackagingState
-                                    )
-                                    .frame(width: 200, height: 200)
-                                }
-                            }
+                            BouquetView(
+                                bouquet: viewModel.currentBouquet,
+                                packagingState: viewModel.bouquetPackagingState
+                            )
+                            .frame(width: 200, height: 200)
                             
                             Spacer()
                             

@@ -29,18 +29,20 @@ struct BouquetView: View {
     
     var body: some View {
         ZStack {
-            switch packagingState {
-            case .notPacked, .packing:
-                unpackedBouquetView
-                
-            case .packed:
-                packedBouquetView
+            if hasBouquetElements {
+                switch packagingState {
+                case .notPacked, .packing:
+                    unpackedBouquetView
+                case .packed:
+                    packedBouquetView
+                }
             }
         }
         .animation(.easeInOut(duration: 0.5), value: packagingState)
     }
     
     // MARK: - Вспомогательные представления
+    
     // Представление для несобранного букета (используется для .notPacked и .packing)
     private var unpackedBouquetView: some View {
         ZStack {
@@ -71,7 +73,7 @@ struct BouquetView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50)
-                    .offset(x: -60, y: 50)
+                    .offset(x: -40, y: 50)
             }
             
             // Показываем открытку
@@ -79,8 +81,8 @@ struct BouquetView: View {
                 Image(cardImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50)
-                    .offset(x: 75, y: 50)
+                    .frame(width: 45)
+                    .offset(x: 40, y: 50)
             }
         }
     }
@@ -128,7 +130,7 @@ struct BouquetView: View {
                 Image(cardImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50)
+                    .frame(width: 45)
                     .offset(x: 45, y: 50)
             }
         }
@@ -151,6 +153,15 @@ struct BouquetView: View {
             }
         }
     }
+    
+    // Проверка, содержит ли букет какие-либо элементы (цветы или аксессуары)
+    private var hasBouquetElements: Bool {
+        return !bouquet.allFlowers.isEmpty ||
+               bouquet.wrapping != nil ||
+               bouquet.ribbon != nil ||
+               bouquet.glitter != nil ||
+               bouquet.card != nil
+    }
 }
 
 #Preview {
@@ -168,7 +179,6 @@ struct BouquetView: View {
     previewBouquet.addAccessory(item: AccessoryItem(type: .glitter, image: .glitter))
     previewBouquet.addAccessory(item: AccessoryItem(type: .card, image: .card1))
     
-//    return BouquetView(bouquet: previewBouquet, packagingState: .notPacked)
-//    return BouquetView(bouquet: previewBouquet, packagingState: .packing)
-    return BouquetView(bouquet: previewBouquet, packagingState: .packed)
+    return BouquetView(bouquet: previewBouquet, packagingState: .packing)
+//    return BouquetView(bouquet: previewBouquet, packagingState: .packed)
 }
