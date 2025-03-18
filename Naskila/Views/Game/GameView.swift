@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = GameViewModel()
     
     var body: some View {
@@ -19,10 +20,10 @@ struct GameView: View {
                 
                 // MARK: Customers
                 CustomerView(customer: viewModel.currentCustomer.imageResource)
-                .offset(x: viewModel.customerTransition == .none ? 0 :
-                        viewModel.customerTransition == .entering ? viewModel.customerTransition.offset :
-                        viewModel.customerTransition.offset)
-                .animation(viewModel.customerTransition.animation, value: viewModel.customerTransition)
+                    .offset(x: viewModel.customerTransition == .none ? 0 :
+                                viewModel.customerTransition == .entering ? viewModel.customerTransition.offset :
+                                viewModel.customerTransition.offset)
+                    .animation(viewModel.customerTransition.animation, value: viewModel.customerTransition)
                 
                 // MARK: TopBar
                 TopBarView(
@@ -43,6 +44,8 @@ struct GameView: View {
                             .frame(height: height * 0.6)
                             .overlay(alignment: .bottom) {
                                 HStack(spacing: 150) {
+                                    
+                                    // MARK: Achievement button
                                     Button {
                                         // get bouquet achievement
                                     } label: {
@@ -50,8 +53,15 @@ struct GameView: View {
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 50)
+                                            .overlay {
+                                                Image(.locker)
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 25)
+                                            }
                                     }
                                     
+                                    // MARK: Cleanup button
                                     Button {
                                         viewModel.clearWorkspace()
                                     } label: {
@@ -201,17 +211,17 @@ struct GameView: View {
                             toggleSound: { viewModel.toggleSound() },
                             toggleMusic: { viewModel.toggleMusic() },
                             resumeAction: { viewModel.resumeGame() },
-                            exitAction: { /* Add navigation back to menu */ }
+                            exitAction: { dismiss() }
                         )
                     case .victory:
                         WinView(
                             nextLevelAction: { viewModel.startGame() },
-                            exitAction: { /* Add navigation back to menu */ }
+                            exitAction: { dismiss() }
                         )
                     case .defeat:
                         LooseView(
                             restartAction: { viewModel.startGame() },
-                            exitAction: { /* Add navigation back to menu */ }
+                            exitAction: { dismiss() }
                         )
                     case .none:
                         EmptyView()

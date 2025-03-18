@@ -1,20 +1,13 @@
 //
-//  PauseView.swift
+//  SettingsView.swift
 //  Naskila
 //
-//  Created by Alex on 16.03.2025.
+//  Created by Alex on 18.03.2025.
 //
 
 import SwiftUI
 
-struct PauseView: View {
-    let soundEnabled: Bool
-    let musicEnabled: Bool
-    let toggleSound: () -> Void
-    let toggleMusic: () -> Void
-    let resumeAction: () -> Void
-    let exitAction: () -> Void
-    
+struct SettingsView: View {
     var body: some View {
         ZStack {
             MainBackgroundView(imageName: .fon2)
@@ -28,6 +21,9 @@ struct PauseView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: 310, maxHeight: 300)
+                        .overlay(alignment: .topTrailing) {
+                            CloseButtonView()
+                        }
                         .padding(.top)
                         .overlay(alignment: .top) {
                             Image(.frame4)
@@ -36,11 +32,11 @@ struct PauseView: View {
                                 .frame(maxWidth: 200, maxHeight: 150)
                                 .offset(x: -5)
                                 .overlay {
-                                    Image(.pauseText)
+                                    Image(.settingsText)
                                         .resizable()
                                         .scaledToFit()
                                         .offset(x: -5)
-                                        .padding(40)
+                                        .padding(30)
                                 }
                         }
                 }
@@ -50,62 +46,52 @@ struct PauseView: View {
                     SettingsControlButtonView(
                         image: .musicicon,
                         imageSize: 40,
-                        isOn: musicEnabled,
-                        action: toggleMusic
+                        isOn: true,
+                        action: {}
                     )
                     
                     SettingsControlButtonView(
                         image: .soundicon,
                         imageSize: 35,
-                        isOn: soundEnabled,
-                        action: toggleSound
+                        isOn: true,
+                        action: {}
                     )
                 }
                 
-                HStack(spacing: 40) {
-                    Button {
-                        exitAction()
-                    } label: {
-                        RoundedRectangle(cornerRadius: 15)
-                            .foregroundStyle(.red)
-                            .frame(width: 100, height: 50)
-                            .shadow(color: .black, radius: 1, x: 0, y: 1)
-                            .overlay {
-                                Image(.homeText)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .padding()
-                            }
-                    }
+                HStack {
+                    Image(.like)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 35)
                     
                     Button {
-                        resumeAction()
+                        // rate app
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.green)
                             .frame(width: 100, height: 50)
                             .shadow(color: .black, radius: 1, x: 0, y: 1)
                             .overlay {
-                                Image(.backText)
+                                Image(.rateusText)
                                     .resizable()
                                     .scaledToFit()
                                     .padding()
                             }
                     }
+                    
+                    Image(.like)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 35)
+                        .scaleEffect(x: -1)
                 }
             }
             .padding(.top, 60)
         }
+        .navigationBarHidden(true)
     }
 }
 
 #Preview {
-    PauseView(
-        soundEnabled: true,
-        musicEnabled: false,
-        toggleSound: {},
-        toggleMusic: {},
-        resumeAction: {},
-        exitAction: {}
-    )
+    SettingsView()
 }
