@@ -24,7 +24,7 @@ struct VaseButtonView: View {
                 .frame(width: size)
                 .background {
                     // Display flowers in the vase
-                    HStack(spacing: -25) {
+                    HStack(spacing: -28) {
                         ForEach(0..<count, id: \.self) { _ in
                             Image(color.displayName)
                                 .resizable()
@@ -33,7 +33,7 @@ struct VaseButtonView: View {
                                 .offset(y: -25)
                         }
                     }
-                    .offset(x: 5)
+                    .offset(x: -1)
                 }
         }
         .overlay(alignment: .bottomTrailing) {

@@ -23,168 +23,133 @@ struct BouquetView: View {
         bouquet.glitter?.image
     }
     
+    private var cardImage: ImageResource? {
+        bouquet.card?.image
+    }
+    
     var body: some View {
         ZStack {
-            // Показываем разные стадии упаковки в зависимости от состояния
             switch packagingState {
-            case .notPacked:
-                // Обычная обертка (если есть)
-                if let wrappingImage = wrappingImage {
-                    Image(wrappingImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 200)
-                        .transition(.opacity)
-                }
-                
-                // Показываем цветы
-                let allFlowers = bouquet.allFlowers
-                if !allFlowers.isEmpty {
-                    HStack(spacing: -20) {
-                        ForEach(allFlowers) { flower in
-                            Image(flower.image)
-                                .resizable()
-                                .frame(width: 45, height: 105)
-                                .offset(y: -35)
-                        }
-                    }
-                    .frame(maxWidth: 200)
-                }
-                
-                // Показываем глиттер, если не упакован
-                if let glitterImage = glitterImage {
-                    Image(glitterImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100)
-                        .offset(y: -40)
-                }
-                
-                // Лента если есть
-                if let ribbonImage = ribbonImage {
-                    Image(ribbonImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50)
-                        .offset(x: -60, y: 50)
-                }
-                
-                // Показываем открытку, если не упакован
-                if let cardImage = bouquet.card?.image {
-                    Image(cardImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50)
-                        .offset(x: 75, y: 50)
-                }
-                
-            case .packing:
-                // Первый этап упаковки - обертка снизу
-                Image(.paper1)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 200)
-                    .transition(.opacity)
-                
-                // Показываем цветы в процессе упаковки
-                let allFlowers = bouquet.allFlowers
-                if !allFlowers.isEmpty {
-                    HStack(spacing: -20) {
-                        ForEach(allFlowers) { flower in
-                            Image(flower.image)
-                                .resizable()
-                                .frame(width: 45, height: 105)
-                                .offset(y: -35)
-                        }
-                    }
-                    .frame(maxWidth: 200)
-                }
-                
-                // Лента если есть
-                if let ribbonImage = ribbonImage {
-                    Image(ribbonImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50)
-                        .offset(x: -60, y: 50)
-                }
-                
-                // Показываем глиттер
-                if let glitterImage = glitterImage {
-                    Image(glitterImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100)
-                        .offset(y: -40)
-                }
-                
-                // Показываем открытку
-                if let cardImage = bouquet.card?.image {
-                    Image(cardImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50)
-                        .offset(x: 75, y: 50)
-                }
+            case .notPacked, .packing:
+                unpackedBouquetView
                 
             case .packed:
-                // Нижняя часть обертки (первый слой)
-                Image(.paper2)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 200)
-                
-                // В упакованном состоянии показываем цветы между слоями обертки
-                let allFlowers = bouquet.allFlowers
-                if !allFlowers.isEmpty {
-                    HStack(spacing: -20) {
-                        ForEach(bouquet.allFlowers.prefix(min(3, bouquet.allFlowers.count))) { flower in
-                            Image(flower.image)
-                                .resizable()
-                                .frame(width: 45, height: 105)
-                                .offset(y: -35)
-                        }
-                    }
-                    .frame(maxWidth: 200)
-                }
-                
-                // Верхняя часть обертки (последний слой)
-                Image(.paper3)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 100)
-                    .offset(y: 50)
-                    .overlay(alignment: .bottom) {
-                        if let ribbonImage = ribbonImage {
-                            Image(ribbonImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 90)
-                                .offset(x: 10, y: 45)
-                        }
-                    }
-                    .transition(.opacity)
-                
-                // Показываем глиттер
-                if let glitterImage = glitterImage {
-                    Image(glitterImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100)
-                        .offset(y: -40)
-                }
-                
-                // Показываем открытку
-                if let cardImage = bouquet.card?.image {
-                    Image(cardImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50)
-                        .offset(x: 45, y: 50)
-                }
+                packedBouquetView
             }
         }
         .animation(.easeInOut(duration: 0.5), value: packagingState)
+    }
+    
+    // MARK: - Вспомогательные представления
+    // Представление для несобранного букета (используется для .notPacked и .packing)
+    private var unpackedBouquetView: some View {
+        ZStack {
+            // Обычная обертка (если есть)
+            if let wrappingImage = wrappingImage {
+                Image(wrappingImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 200)
+                    .transition(.opacity)
+            }
+            
+            // Показываем все цветы
+            flowersView
+            
+            // Показываем глиттер
+            if let glitterImage = glitterImage {
+                Image(glitterImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100)
+                    .offset(y: -40)
+            }
+            
+            // Лента если есть
+            if let ribbonImage = ribbonImage {
+                Image(ribbonImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50)
+                    .offset(x: -60, y: 50)
+            }
+            
+            // Показываем открытку
+            if let cardImage = cardImage {
+                Image(cardImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50)
+                    .offset(x: 75, y: 50)
+            }
+        }
+    }
+    
+    // Представление для упакованного букета
+    private var packedBouquetView: some View {
+        ZStack {
+            // Нижняя часть обертки (первый слой)
+            Image(.paper2)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 200)
+            
+            // Показываем все цветы между слоями обертки
+            flowersView
+            
+            // Верхняя часть обертки (последний слой)
+            Image(.paper3)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 100)
+                .offset(y: 50)
+                .overlay(alignment: .bottom) {
+                    if let ribbonImage = ribbonImage {
+                        Image(ribbonImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 90)
+                            .offset(x: 10, y: 45)
+                    }
+                }
+                .transition(.opacity)
+            
+            // Показываем глиттер
+            if let glitterImage = glitterImage {
+                Image(glitterImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100)
+                    .offset(y: -40)
+            }
+            
+            // Показываем открытку
+            if let cardImage = cardImage {
+                Image(cardImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50)
+                    .offset(x: 45, y: 50)
+            }
+        }
+    }
+    
+    // Общее представление для цветов, используемое во всех состояниях
+    private var flowersView: some View {
+        Group {
+            let allFlowers = bouquet.allFlowers
+            if !allFlowers.isEmpty {
+                HStack(spacing: -20) {
+                    ForEach(allFlowers) { flower in
+                        Image(flower.image)
+                            .resizable()
+                            .frame(width: 45, height: 105)
+                            .offset(y: -35)
+                    }
+                }
+                .frame(maxWidth: 200)
+            }
+        }
     }
 }
 

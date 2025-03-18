@@ -41,6 +41,29 @@ struct GameView: View {
                         Image(.workspace)
                             .resizable()
                             .frame(height: height * 0.6)
+                            .overlay(alignment: .bottom) {
+                                HStack(spacing: 150) {
+                                    Button {
+                                        // get bouquet achievement
+                                    } label: {
+                                        Image(.getBouquet)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50)
+                                    }
+                                    
+                                    Button {
+                                        viewModel.clearWorkspace()
+                                    } label: {
+                                        Image(.cleanup)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50)
+                                    }
+                                }
+                                .padding(.trailing)
+                                .padding(.bottom, 8)
+                            }
                         
                         HStack(alignment: .bottom) {
                             // MARK: Card button

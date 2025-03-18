@@ -254,6 +254,15 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Вспомогательные методы
     
+    // Добавляем новый метод clearWorkspace() для очистки рабочей поверхности
+    func clearWorkspace() {
+        // Сбрасываем текущий букет, сохраняя текущий заказ
+        currentBouquet.reset()
+        
+        // Сбрасываем состояние упаковки букета
+        bouquetPackagingState = .notPacked
+    }
+    
     /// Проверяет, активен ли определенный аксессуар для текущего заказа
     func isAccessoryActive(_ type: AccessoryType) -> Bool {
         return type.isActive(for: currentOrder)
