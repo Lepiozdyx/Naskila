@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject private var gameSettings = GameSettings.shared
+    // Используем ObservedObject для отслеживания изменений настроек
+    @ObservedObject private var settings = GameSettings.shared
     
     var body: some View {
         ZStack {
@@ -48,15 +49,27 @@ struct SettingsView: View {
                     SettingsControlButtonView(
                         image: .musicicon,
                         imageSize: 40,
-                        isOn: true,
-                        action: {}
+                        isOn: settings.musicEnabled,
+                        action: {
+                            settings.playSound()
+                            settings.toggleMusic()
+                        }
                     )
                     
                     SettingsControlButtonView(
                         image: .soundicon,
                         imageSize: 35,
-                        isOn: true,
-                        action: {}
+                        isOn: settings.soundEnabled,
+                        action: {
+                            // Сохраняем текущее состояние перед изменением
+                            let wasEnabled = settings.soundEnabled
+                            settings.toggleSound()
+                            
+                            // Воспроизводим звук только если переключили звук с выключенного на включенный
+                            if !wasEnabled && settings.soundEnabled {
+                                settings.playSound()
+                            }
+                        }
                     )
                 }
                 
@@ -67,7 +80,8 @@ struct SettingsView: View {
                         .frame(width: 35)
                     
                     Button {
-                        // rate app
+                        settings.playSound()
+                        RatingManager.shared.requestReview()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundStyle(.green)

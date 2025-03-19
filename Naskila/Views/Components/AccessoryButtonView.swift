@@ -13,8 +13,11 @@ struct AccessoryButtonView: View {
     let isActive: Bool
     let action: () -> Void
     
+    @ObservedObject private var gameSettings = GameSettings.shared
+    
     var body: some View {
         Button {
+            gameSettings.playSound()
             action()
         } label: {
             Image(image)
@@ -23,6 +26,7 @@ struct AccessoryButtonView: View {
                 .frame(width: size)
         }
         .buttonStyle(.plain)
+        .disabled(!isActive)
     }
 }
 

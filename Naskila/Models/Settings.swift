@@ -6,32 +6,79 @@
 //
 
 import Foundation
-import Combine
 
 class GameSettings: ObservableObject {
     static let shared = GameSettings()
     
-    @Published var soundEnabled: Bool = true
-    @Published var musicEnabled: Bool = true
-    @Published var currency: Int = 0
-    @Published var hearts: Int = GameConstants.initialHearts
+    // Флаг для предотвращения рекурсивных вызовов
+    private var isUpdatingSettings = false
     
-    private init() {
-        load()
+    @Published var soundEnabled: Bool = false {
+        didSet {
+            // Предотвращаем рекурсивные вызовы
+            guard !isUpdatingSettings else { return }
+            isUpdatingSettings = true
+            
+            // Вместо прямого вызова SoundManager из didSet, просто сохраняем настройку
+            saveSettings()
+            
+            isUpdatingSettings = false
+        }
     }
     
-    func load() {
+    @Published var musicEnabled: Bool = false {
+        didSet {
+            // Предотвращаем рекурсивные вызовы
+            guard !isUpdatingSettings else { return }
+            isUpdatingSettings = true
+            
+            // Применяем настройку музыки
+            if musicEnabled {
+                SoundManager.shared.playBackgroundMusic()
+            } else {
+                SoundManager.shared.stopBackgroundMusic()
+            }
+            
+            saveSettings()
+            
+            isUpdatingSettings = false
+        }
+    }
+    
+    @Published var currency: Int = 0 {
+        didSet {
+            saveSettings()
+        }
+    }
+    
+    @Published var hearts: Int = GameConstants.initialHearts {
+        didSet {
+            saveSettings()
+        }
+    }
+    
+    private init() {
+        loadSettings()
+    }
+    
+    // Переименовал методы для большей ясности
+    func loadSettings() {
         let defaults = UserDefaults.standard
         
+        // Загружаем состояния с дефолтными значениями false
         soundEnabled = defaults.bool(forKey: "soundEnabled")
         musicEnabled = defaults.bool(forKey: "musicEnabled")
         currency = defaults.integer(forKey: "currency")
         hearts = defaults.integer(forKey: "hearts") != 0 ? defaults.integer(forKey: "hearts") : GameConstants.initialHearts
+        
+        // Применяем настройки музыки при загрузке, если она включена
+        if musicEnabled {
+            SoundManager.shared.playBackgroundMusic()
+        }
     }
     
-    func save() {
+    func saveSettings() {
         let defaults = UserDefaults.standard
-        
         defaults.set(soundEnabled, forKey: "soundEnabled")
         defaults.set(musicEnabled, forKey: "musicEnabled")
         defaults.set(currency, forKey: "currency")
@@ -40,12 +87,10 @@ class GameSettings: ObservableObject {
     
     func addCurrency(_ amount: Int) {
         currency += amount
-        save()
     }
     
     func addHearts(_ amount: Int) {
         hearts += amount
-        save()
     }
     
     func canAfford(_ price: Int) -> Bool {
@@ -60,9 +105,24 @@ class GameSettings: ObservableObject {
         if canAfford(price) {
             currency -= price
             hearts += count
-            save()
             return true
         }
         return false
+    }
+    
+    // Четко разделенные методы для управления настройками
+    func toggleSound() {
+        soundEnabled.toggle()
+    }
+    
+    func toggleMusic() {
+        musicEnabled.toggle()
+    }
+    
+    // Метод для воспроизведения звука, если он включен
+    func playSound() {
+        if soundEnabled {
+            SoundManager.shared.playSound()
+        }
     }
 }

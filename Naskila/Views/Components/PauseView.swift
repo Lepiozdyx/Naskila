@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct PauseView: View {
-    let soundEnabled: Bool
-    let musicEnabled: Bool
-    let toggleSound: () -> Void
-    let toggleMusic: () -> Void
+    // Используем ObservedObject для отслеживания изменений настроек
+    @ObservedObject private var settings = GameSettings.shared
+    
     let resumeAction: () -> Void
     let exitAction: () -> Void
     
@@ -50,20 +49,33 @@ struct PauseView: View {
                     SettingsControlButtonView(
                         image: .musicicon,
                         imageSize: 40,
-                        isOn: musicEnabled,
-                        action: toggleMusic
+                        isOn: settings.musicEnabled,
+                        action: {
+                            settings.playSound()
+                            settings.toggleMusic()
+                        }
                     )
                     
                     SettingsControlButtonView(
                         image: .soundicon,
                         imageSize: 35,
-                        isOn: soundEnabled,
-                        action: toggleSound
+                        isOn: settings.soundEnabled,
+                        action: {
+                            // Сохраняем текущее состояние перед изменением
+                            let wasEnabled = settings.soundEnabled
+                            settings.toggleSound()
+                            
+                            // Воспроизводим звук только если переключили звук с выключенного на включенный
+                            if !wasEnabled && settings.soundEnabled {
+                                settings.playSound()
+                            }
+                        }
                     )
                 }
                 
                 HStack(spacing: 40) {
                     Button {
+                        settings.playSound()
                         exitAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
@@ -79,6 +91,7 @@ struct PauseView: View {
                     }
                     
                     Button {
+                        settings.playSound()
                         resumeAction()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
@@ -101,10 +114,6 @@ struct PauseView: View {
 
 #Preview {
     PauseView(
-        soundEnabled: true,
-        musicEnabled: false,
-        toggleSound: {},
-        toggleMusic: {},
         resumeAction: {},
         exitAction: {}
     )

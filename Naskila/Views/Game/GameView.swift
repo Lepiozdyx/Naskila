@@ -207,10 +207,6 @@ struct GameView: View {
                     switch viewModel.gameOverlay {
                     case .pause:
                         PauseView(
-                            soundEnabled: viewModel.settings.soundEnabled,
-                            musicEnabled: viewModel.settings.musicEnabled,
-                            toggleSound: { viewModel.toggleSound() },
-                            toggleMusic: { viewModel.toggleMusic() },
                             resumeAction: { viewModel.resumeGame() },
                             exitAction: { dismiss() }
                         )

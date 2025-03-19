@@ -14,6 +14,8 @@ struct MainMenuView: View {
     @State private var navigateToGame = false
     @State private var navigateToShop = false
     
+    @Environment(\.scenePhase) private var scenePhase
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -116,7 +118,22 @@ struct MainMenuView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
-                gameSettings.save()
+                // Проверяем и включаем музыку при появлении экрана, если нужно
+                if gameSettings.musicEnabled {
+                    SoundManager.shared.playBackgroundMusic()
+                }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                switch newPhase {
+                case .active:
+                    // Приложение стало активным - делегируем обработку в SoundManager
+                    SoundManager.shared.handleAppForeground()
+                case .background, .inactive:
+                    // Приложение ушло в фон - делегируем обработку в SoundManager
+                    SoundManager.shared.handleAppBackground()
+                @unknown default:
+                    break
+                }
             }
         }
         .navigationViewStyle(.stack)

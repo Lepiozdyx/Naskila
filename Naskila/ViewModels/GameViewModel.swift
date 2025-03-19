@@ -59,6 +59,11 @@ class GameViewModel: ObservableObject {
         
         resetGame()
         startTimer()
+        
+        // Воспроизведение музыки при начале игры, если она включена
+        if settings.musicEnabled {
+            SoundManager.shared.playBackgroundMusic()
+        }
     }
     
     /// Сбрасывает игру в начальное состояние
@@ -88,6 +93,11 @@ class GameViewModel: ObservableObject {
         if isTimerRunning {
             cancelAllTimers()
             gameOverlay = .pause
+            
+            // Воспроизведение звука при паузе
+            if settings.soundEnabled {
+                SoundManager.shared.playSound()
+            }
         }
     }
     
@@ -96,6 +106,11 @@ class GameViewModel: ObservableObject {
         if gameOverlay == .pause {
             gameOverlay = .none
             startTimer()
+            
+            // Воспроизведение звука при возобновлении
+            if settings.soundEnabled {
+                SoundManager.shared.playSound()
+            }
         }
     }
     
@@ -107,6 +122,11 @@ class GameViewModel: ObservableObject {
         // Добавляем сердечко за победу
         settings.addHearts(GameConstants.heartRewardPerVictory)
         gameOverlay = .victory
+        
+        // Воспроизведение звука при победе
+        if settings.soundEnabled {
+            SoundManager.shared.playSound()
+        }
     }
     
     /// Завершает уровень с поражением
@@ -115,6 +135,11 @@ class GameViewModel: ObservableObject {
         // Вычитаем сердечко за поражение
         settings.addHearts(-GameConstants.heartPenaltyPerDefeat)
         gameOverlay = .defeat
+        
+        // Воспроизведение звука при поражении
+        if settings.soundEnabled {
+            SoundManager.shared.playSound()
+        }
     }
     
     // MARK: - Методы таймеров
@@ -169,6 +194,11 @@ class GameViewModel: ObservableObject {
                     // Добавляем цветок в букет
                     currentBouquet.addFlower(item: flower)
                     
+                    // Воспроизведение звука при взятии цветка
+                    if settings.soundEnabled {
+                        SoundManager.shared.playSound()
+                    }
+                    
                     // Проверяем, выполнен ли заказ
                     checkOrderCompletion()
                 }
@@ -182,6 +212,11 @@ class GameViewModel: ObservableObject {
         if let index = vases.firstIndex(where: { $0.color == color }) {
             // Добавляем цветок в вазу
             if vases[index].addFlower() {
+                // Воспроизведение звука при добавлении цветка
+                if settings.soundEnabled {
+                    SoundManager.shared.playSound()
+                }
+                
                 // Если есть активный таймер для этой вазы, отменяем его
                 if let timer = vaseTimers[vases[index].id] {
                     timer.cancel()
@@ -201,6 +236,11 @@ class GameViewModel: ObservableObject {
             // Добавляем аксессуар в букет
             currentBouquet.addAccessory(item: accessory)
             
+            // Воспроизведение звука при добавлении аксессуара
+            if settings.soundEnabled {
+                SoundManager.shared.playSound()
+            }
+            
             // Проверяем, выполнен ли заказ
             checkOrderCompletion()
         }
@@ -218,6 +258,11 @@ class GameViewModel: ObservableObject {
     private func completeOrder() {
         // Начисляем валюту за выполнение заказа
         settings.addCurrency(GameConstants.orderCompletionReward)
+        
+        // Воспроизведение звука при завершении заказа
+        if settings.soundEnabled {
+            SoundManager.shared.playSound()
+        }
         
         // Запускаем анимацию упаковки
         self.bouquetPackagingState = .packing
@@ -276,6 +321,11 @@ class GameViewModel: ObservableObject {
         
         // Сбрасываем состояние упаковки букета
         bouquetPackagingState = .notPacked
+        
+        // Воспроизведение звука при очистке рабочей поверхности
+        if settings.soundEnabled {
+            SoundManager.shared.playSound()
+        }
     }
     
     /// Проверяет, активен ли определенный аксессуар для текущего заказа
@@ -294,16 +344,19 @@ class GameViewModel: ObservableObject {
         let seconds = Int(remainingTime) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-    
+
     /// Включает/выключает звук
     func toggleSound() {
-        settings.soundEnabled.toggle()
-        settings.save()
+        settings.toggleSound()
     }
-    
+
     /// Включает/выключает музыку
     func toggleMusic() {
-        settings.musicEnabled.toggle()
-        settings.save()
+        settings.toggleMusic()
+    }
+
+    /// Воспроизводит звук, если он включен
+    func playSound() {
+        settings.playSound()
     }
 }
