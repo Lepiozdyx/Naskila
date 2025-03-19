@@ -10,6 +10,7 @@ import SwiftUI
 struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = GameViewModel()
+    @State private var showNotEnoughHeartsAlert = false
     
     var body: some View {
         GeometryReader { geo in
@@ -230,7 +231,19 @@ struct GameView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
-                viewModel.startGame()
+                // Check if player has enough hearts to start the game
+                if !viewModel.settings.canStartGame() {
+                    showNotEnoughHeartsAlert = true
+                } else {
+                    viewModel.startGame()
+                }
+            }
+            .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
+                Button("Back to menu", role: .cancel) {
+                    dismiss()
+                }
+            } message: {
+                Text("You are out of hearts. Purchase them from the in-game store to continue.")
             }
         }
     }

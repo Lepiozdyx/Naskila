@@ -11,7 +11,10 @@ struct ShopTileView: View {
     let coins: ImageResource
     let price: ImageResource
     let hearts: ImageResource
-    let action: () -> ()
+    let priceAmount: Int
+    let heartsAmount: Int
+    let isAffordable: Bool
+    let action: () -> Void
     
     var body: some View {
         Image(.frame6)
@@ -57,7 +60,7 @@ struct ShopTileView: View {
                         action()
                     } label: {
                         RoundedRectangle(cornerRadius: 15)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(isAffordable ? .green : .gray)
                             .frame(width: 60, height: 50)
                             .shadow(color: .black, radius: 1, x: 0, y: 1)
                             .overlay {
@@ -65,18 +68,59 @@ struct ShopTileView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .padding()
+                                    .opacity(isAffordable ? 1.0 : 0.5)
                             }
                     }
                     .buttonStyle(.plain)
+                    .disabled(!isAffordable)
                 }
                 .padding()
             }
     }
 }
 
+// Для сопоставления изображения с числовым значением
+extension ImageResource {
+    var priceValue: Int {
+        switch self {
+        case ._10000: return GameConstants.heartsPrice2
+        case ._15000: return GameConstants.heartsPrice5
+        case ._25000: return GameConstants.heartsPrice7
+        case ._50000: return GameConstants.heartsPrice10
+        default: return 0
+        }
+    }
+    
+    var heartsValue: Int {
+        switch self {
+        case ._2: return 2
+        case ._5: return 5
+        case ._7: return 7
+        case ._10: return 10
+        default: return 0
+        }
+    }
+}
+
 #Preview {
     VStack {
-        ShopTileView(coins: .coins1, price: ._25000, hearts: ._10, action: {})
-        ShopTileView(coins: .coins2, price: ._15000, hearts: ._5, action: {})
+        ShopTileView(
+            coins: .coins1,
+            price: ._25000,
+            hearts: ._10,
+            priceAmount: 25000,
+            heartsAmount: 10,
+            isAffordable: true,
+            action: {}
+        )
+        ShopTileView(
+            coins: .coins2,
+            price: ._15000,
+            hearts: ._5,
+            priceAmount: 15000,
+            heartsAmount: 5,
+            isAffordable: false,
+            action: {}
+        )
     }
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject private var gameSettings = GameSettings.shared
+    
     var body: some View {
         ZStack {
             MainBackgroundView(imageName: .fon2)

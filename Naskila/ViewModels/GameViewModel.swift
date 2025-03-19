@@ -18,7 +18,7 @@ class GameViewModel: ObservableObject {
     @Published var customersServed: Int = 0
     @Published var gameOverlay: GameOverlay = .none
     @Published var remainingTime: Double
-    @Published var settings: GameSettings
+    @ObservedObject var settings: GameSettings
     @Published var customerTransition: CustomerTransition = .none
     @Published var bouquetPackagingState: BouquetPackagingState = .notPacked
     
@@ -29,8 +29,8 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Инициализатор
     init() {
-        // Загрузка настроек
-        self.settings = GameSettings.load()
+        // Используем единый экземпляр настроек
+        self.settings = GameSettings.shared
         
         // Инициализация ваз для каждого цвета
         self.vases = FlowerColor.allCases.map { VaseState(color: $0) }
@@ -50,6 +50,13 @@ class GameViewModel: ObservableObject {
     
     /// Запускает игру и таймер
     func startGame() {
+        // Проверяем, достаточно ли сердечек для начала игры
+        guard settings.canStartGame() else {
+            // Выходим без запуска игры, если сердечек недостаточно
+            gameOverlay = .none
+            return
+        }
+        
         resetGame()
         startTimer()
     }
@@ -95,13 +102,18 @@ class GameViewModel: ObservableObject {
     /// Завершает уровень с победой
     private func completeLevel() {
         cancelAllTimers()
+        // Добавляем валюту за победу
         settings.addCurrency(GameConstants.victoryReward)
+        // Добавляем сердечко за победу
+        settings.addHearts(GameConstants.heartRewardPerVictory)
         gameOverlay = .victory
     }
     
     /// Завершает уровень с поражением
     private func failLevel() {
         cancelAllTimers()
+        // Вычитаем сердечко за поражение
+        settings.addHearts(-GameConstants.heartPenaltyPerDefeat)
         gameOverlay = .defeat
     }
     
@@ -204,53 +216,56 @@ class GameViewModel: ObservableObject {
     
     /// Обрабатывает завершение заказа
     private func completeOrder() {
-            // Запускаем анимацию упаковки
-            self.bouquetPackagingState = .packing
+        // Начисляем валюту за выполнение заказа
+        settings.addCurrency(GameConstants.orderCompletionReward)
+        
+        // Запускаем анимацию упаковки
+        self.bouquetPackagingState = .packing
+        
+        // Первый этап упаковки
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            guard let self = self else { return }
+            self.bouquetPackagingState = .packed
             
-            // Первый этап упаковки
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            // После завершения упаковки продолжаем с анимацией клиента
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 guard let self = self else { return }
-                self.bouquetPackagingState = .packed
                 
-                // После завершения упаковки продолжаем с анимацией клиента
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                // Увеличиваем счетчик обслуженных клиентов
+                self.customersServed += 1
+                
+                // Анимация ухода текущего клиента
+                self.customerTransition = .leaving
+                
+                // Задержка для анимации
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     guard let self = self else { return }
                     
-                    // Увеличиваем счетчик обслуженных клиентов
-                    self.customersServed += 1
+                    // Проверяем, достигнута ли цель по количеству клиентов
+                    if self.customersServed >= GameConstants.customersPerLevel {
+                        self.completeLevel()
+                        return
+                    }
                     
-                    // Анимация ухода текущего клиента
-                    self.customerTransition = .leaving
+                    // Генерируем новый заказ и нового клиента
+                    self.currentOrder = Order.random()
+                    self.currentCustomer = Customer.random()
                     
-                    // Задержка для анимации
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        guard let self = self else { return }
-                        
-                        // Проверяем, достигнута ли цель по количеству клиентов
-                        if self.customersServed >= GameConstants.customersPerLevel {
-                            self.completeLevel()
-                            return
-                        }
-                        
-                        // Генерируем новый заказ и нового клиента
-                        self.currentOrder = Order.random()
-                        self.currentCustomer = Customer.random()
-                        
-                        // Сбрасываем букет и состояние упаковки
-                        self.currentBouquet.reset()
-                        self.bouquetPackagingState = .notPacked
-                        
-                        // Анимация появления нового клиента
-                        self.customerTransition = .entering
-                        
-                        // Сброс анимации
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.customerTransition = .none
-                        }
+                    // Сбрасываем букет и состояние упаковки
+                    self.currentBouquet.reset()
+                    self.bouquetPackagingState = .notPacked
+                    
+                    // Анимация появления нового клиента
+                    self.customerTransition = .entering
+                    
+                    // Сброс анимации
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.customerTransition = .none
                     }
                 }
             }
         }
+    }
     
     // MARK: - Вспомогательные методы
     

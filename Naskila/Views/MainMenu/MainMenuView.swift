@@ -9,6 +9,10 @@ import SwiftUI
 
 struct MainMenuView: View {
     @StateObject private var viewModel = ProfileViewModel()
+    @ObservedObject private var gameSettings = GameSettings.shared
+    @State private var showNotEnoughHeartsAlert = false
+    @State private var navigateToGame = false
+    @State private var navigateToShop = false
     
     var body: some View {
         NavigationView {
@@ -52,11 +56,11 @@ struct MainMenuView: View {
                 VStack {
                     HStack(alignment: .top) {
                         VStack {
-                            // viewModel.settings.currency
-                            AmountCounterView(badge: .coin, amount: 123)
+                            // Display current currency
+                            AmountCounterView(badge: .coin, amount: gameSettings.currency)
                             
-                            // total lifes
-                            AmountCounterView(badge: .heart, amount: 5)
+                            // Display current hearts
+                            AmountCounterView(badge: .heart, amount: gameSettings.hearts)
                         }
                         
                         Spacer()
@@ -75,18 +79,46 @@ struct MainMenuView: View {
                     
                     Spacer()
                     
-                    NavigationLink {
-                         GameView()
+                    Button {
+                        // Check if player has enough hearts to play
+                        if gameSettings.canStartGame() {
+                            // Use state variable to trigger navigation
+                            navigateToGame = true
+                        } else {
+                            // Show alert that player needs to get hearts
+                            showNotEnoughHeartsAlert = true
+                        }
                     } label: {
                         Image(.start)
                             .resizable()
                             .scaledToFit()
                             .frame(maxWidth: 180)
                     }
-
+                    
+                    // Using NavigationLink with isActive binding
+                    NavigationLink(destination: GameView(), isActive: $navigateToGame) {
+                        EmptyView()
+                    }
+                    
+                    // Navigation link to shop
+                    NavigationLink(destination: ShopView(), isActive: $navigateToShop) {
+                        EmptyView()
+                    }
+                }
+                .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
+                    Button("Shop") {
+                        navigateToShop = true
+                    }
+                    Button("Back", role: .cancel) {}
+                } message: {
+                    Text("You are out of hearts. Purchase them from the in-game store to continue.")
                 }
             }
             .navigationBarHidden(true)
+            .onAppear {
+                // Refresh game settings when view appears
+                gameSettings.save()
+            }
         }
         .navigationViewStyle(.stack)
     }
