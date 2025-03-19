@@ -15,12 +15,14 @@ class GameSettings: ObservableObject {
     
     @Published var soundEnabled: Bool = false {
         didSet {
-            // Предотвращаем рекурсивные вызовы
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
             
-            // Вместо прямого вызова SoundManager из didSet, просто сохраняем настройку
+            // Сохраняем настройку
             saveSettings()
+            
+            // Публикуем уведомление для других компонентов
+            NotificationCenter.default.post(name: .soundSettingChanged, object: soundEnabled)
             
             isUpdatingSettings = false
         }
@@ -28,18 +30,14 @@ class GameSettings: ObservableObject {
     
     @Published var musicEnabled: Bool = false {
         didSet {
-            // Предотвращаем рекурсивные вызовы
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
             
-            // Применяем настройку музыки
-            if musicEnabled {
-                SoundManager.shared.playBackgroundMusic()
-            } else {
-                SoundManager.shared.stopBackgroundMusic()
-            }
-            
+            // Сохраняем настройку
             saveSettings()
+            
+            // Публикуем уведомление для других компонентов
+            NotificationCenter.default.post(name: .musicSettingChanged, object: musicEnabled)
             
             isUpdatingSettings = false
         }
@@ -61,20 +59,16 @@ class GameSettings: ObservableObject {
         loadSettings()
     }
     
-    // Переименовал методы для большей ясности
     func loadSettings() {
         let defaults = UserDefaults.standard
         
-        // Загружаем состояния с дефолтными значениями false
         soundEnabled = defaults.bool(forKey: "soundEnabled")
         musicEnabled = defaults.bool(forKey: "musicEnabled")
         currency = defaults.integer(forKey: "currency")
         hearts = defaults.integer(forKey: "hearts") != 0 ? defaults.integer(forKey: "hearts") : GameConstants.initialHearts
         
-        // Применяем настройки музыки при загрузке, если она включена
-        if musicEnabled {
-            SoundManager.shared.playBackgroundMusic()
-        }
+        // Уведомляем о загрузке настроек
+        NotificationCenter.default.post(name: .settingsLoaded, object: nil)
     }
     
     func saveSettings() {
@@ -84,6 +78,8 @@ class GameSettings: ObservableObject {
         defaults.set(currency, forKey: "currency")
         defaults.set(hearts, forKey: "hearts")
     }
+    
+    // Остальные методы без изменений
     
     func addCurrency(_ amount: Int) {
         currency += amount
@@ -110,7 +106,7 @@ class GameSettings: ObservableObject {
         return false
     }
     
-    // Четко разделенные методы для управления настройками
+    // Методы для управления настройками
     func toggleSound() {
         soundEnabled.toggle()
     }
@@ -125,4 +121,11 @@ class GameSettings: ObservableObject {
             SoundManager.shared.playSound()
         }
     }
+}
+
+// Расширение для имен уведомлений
+extension Notification.Name {
+    static let soundSettingChanged = Notification.Name("soundSettingChanged")
+    static let musicSettingChanged = Notification.Name("musicSettingChanged")
+    static let settingsLoaded = Notification.Name("settingsLoaded")
 }

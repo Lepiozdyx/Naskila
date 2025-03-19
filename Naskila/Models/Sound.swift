@@ -15,12 +15,22 @@ class SoundManager {
     private var soundEffectPlayer: AVAudioPlayer?
     private var isBackgroundMusicPrepared = false
     
-    // Флаги для предотвращения рекурсивных вызовов
-    private var isPlayingMusic = false
-    private var isPlayingSound = false
+    // Локальное хранение настроек для уменьшения связности
+    private var isMusicEnabled = false
+    private var isSoundEnabled = false
     
     private init() {
         setupBackgroundMusic()
+        setupNotifications()
+        
+        // Инициализируем локальные настройки
+        isMusicEnabled = GameSettings.shared.musicEnabled
+        isSoundEnabled = GameSettings.shared.soundEnabled
+        
+        // Применяем начальные настройки
+        if isMusicEnabled {
+            playBackgroundMusic()
+        }
     }
     
     // MARK: - Setup methods
@@ -41,22 +51,73 @@ class SoundManager {
         }
     }
     
+    private func setupNotifications() {
+        // Подписываемся на уведомления об изменении настроек
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSoundSettingChanged(_:)),
+            name: .soundSettingChanged,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMusicSettingChanged(_:)),
+            name: .musicSettingChanged,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSettingsLoaded),
+            name: .settingsLoaded,
+            object: nil
+        )
+    }
+    
+    // MARK: - Notification handlers
+    
+    @objc private func handleSoundSettingChanged(_ notification: Notification) {
+        if let isEnabled = notification.object as? Bool {
+            isSoundEnabled = isEnabled
+        }
+    }
+    
+    @objc private func handleMusicSettingChanged(_ notification: Notification) {
+        if let isEnabled = notification.object as? Bool {
+            isMusicEnabled = isEnabled
+            
+            if isEnabled {
+                playBackgroundMusic()
+            } else {
+                stopBackgroundMusic()
+            }
+        }
+    }
+    
+    @objc private func handleSettingsLoaded() {
+        // Синхронизируем локальные настройки с глобальными
+        isMusicEnabled = GameSettings.shared.musicEnabled
+        isSoundEnabled = GameSettings.shared.soundEnabled
+        
+        // Применяем настройки
+        if isMusicEnabled {
+            playBackgroundMusic()
+        } else {
+            stopBackgroundMusic()
+        }
+    }
+    
     // MARK: - Public methods
     
     func playBackgroundMusic() {
-        // Предотвращаем рекурсивный вызов
-        guard !isPlayingMusic else { return }
-        isPlayingMusic = true
+        // Проверяем локальную настройку и готовность плеера
+        guard isMusicEnabled && isBackgroundMusicPrepared else { return }
         
-        // Проверяем, включена ли музыка в настройках, но не обращаемся к методам, которые могут изменить настройки
-        if GameSettings.shared.musicEnabled && isBackgroundMusicPrepared {
-            // Проверяем, не воспроизводится ли музыка уже
-            if let player = backgroundMusicPlayer, !player.isPlaying {
-                player.play()
-            }
+        // Проверяем, не воспроизводится ли музыка уже
+        if let player = backgroundMusicPlayer, !player.isPlaying {
+            player.play()
         }
-        
-        isPlayingMusic = false
     }
     
     func stopBackgroundMusic() {
@@ -64,19 +125,11 @@ class SoundManager {
     }
     
     func playSound(named soundName: String = "sound") {
-        // Предотвращаем рекурсивный вызов
-        guard !isPlayingSound else { return }
-        isPlayingSound = true
-        
-        // Проверяем, включен ли звук в настройках, но не обращаемся к методам, которые могут изменить настройки
-        guard GameSettings.shared.soundEnabled else {
-            isPlayingSound = false
-            return
-        }
+        // Проверяем локальную настройку
+        guard isSoundEnabled else { return }
         
         guard let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") else {
             print("Sound file not found")
-            isPlayingSound = false
             return
         }
         
@@ -87,8 +140,6 @@ class SoundManager {
         } catch {
             print("Could not play sound: \(error.localizedDescription)")
         }
-        
-        isPlayingSound = false
     }
     
     // Упрощенные методы для обработки состояний приложения
@@ -97,8 +148,12 @@ class SoundManager {
     }
     
     func handleAppForeground() {
-        if GameSettings.shared.musicEnabled {
+        if isMusicEnabled {
             playBackgroundMusic()
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
