@@ -53,10 +53,6 @@ class NetworkManager: ObservableObject {
             return true
         }
         
-        if url.host?.contains("google.com") == true {
-            return true
-        }
-        
         return false
     }
     
@@ -68,18 +64,10 @@ class NetworkManager: ObservableObject {
             let (_, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                return false
+                return true
             }
             
-            guard (200...299).contains(httpResponse.statusCode) else {
-                return false
-            }
-            
-            guard let finalURL = httpResponse.url else {
-                return false
-            }
-            
-            if finalURL.host?.contains("google.com") == true {
+            if (400...599).contains(httpResponse.statusCode) {
                 return false
             }
             
