@@ -14,7 +14,7 @@ struct DryBoxButtonView: View {
         GeometryReader { geo in
             let boxWidth = geo.size.width
             let boxHeight = geo.size.height
-            let flowerSize = boxWidth * 0.2 // ~30/170
+            let flowerSize = boxWidth * 0.2
             
             Button {
                 action()

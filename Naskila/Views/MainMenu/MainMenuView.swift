@@ -18,121 +18,120 @@ struct MainMenuView: View {
     
     var body: some View {
         NavigationView {
-            ZStack {
-                MainBackgroundView(imageName: .fon)
-                
-                HStack {
-                    Spacer()
-                    
-                    NavigationLink {
-                        ProfileView(viewModel: viewModel)
-                    } label: {
-                        Image(viewModel.selectedImageResource)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 70)
-                            .shadow(color: .black, radius: 2, x: 1, y: 2)
-                    }
-                }
-                .padding(.trailing)
-                
-                VStack {
-                    Spacer()
+            OrientationView(requiredOrientation: .landscape) {
+                ZStack {
+                    MainBackgroundView(imageName: .fon)
                     
                     HStack {
                         Spacer()
                         
                         NavigationLink {
-                             ShopView()
+                            ProfileView(viewModel: viewModel)
                         } label: {
-                            Image(.shop)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 80)
-                        }
-                    }
-                }
-                .padding(.trailing)
-                .padding(.bottom)
-                
-                VStack {
-                    HStack(alignment: .top) {
-                        VStack {
-                            // Display current currency
-                            AmountCounterView(badge: .coin, amount: gameSettings.currency)
-                            
-                            // Display current hearts
-                            AmountCounterView(badge: .heart, amount: gameSettings.hearts)
-                        }
-                        
-                        Spacer()
-                        
-                        NavigationLink {
-                             SettingsView()
-                        } label: {
-                            Image(.gear)
+                            Image(viewModel.selectedImageResource)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 70)
+                                .shadow(color: .black, radius: 2, x: 1, y: 2)
                         }
                     }
-                    .padding(.top)
-                    .padding(.horizontal)
+                    .padding(.trailing)
                     
-                    Spacer()
-                    
-                    Button {
-                        // Check if player has enough hearts to play
-                        if gameSettings.canStartGame() {
-                            // Use state variable to trigger navigation
-                            navigateToGame = true
-                        } else {
-                            // Show alert that player needs to get hearts
-                            showNotEnoughHeartsAlert = true
+                    VStack {
+                        Spacer()
+                        
+                        HStack {
+                            Spacer()
+                            
+                            NavigationLink {
+                                ShopView()
+                            } label: {
+                                Image(.shop)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80)
+                            }
                         }
-                    } label: {
-                        Image(.start)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 180)
                     }
+                    .padding(.trailing)
+                    .padding(.bottom)
                     
-                    // Using NavigationLink with isActive binding
-                    NavigationLink(destination: GameView(), isActive: $navigateToGame) {
-                        EmptyView()
+                    VStack {
+                        HStack(alignment: .top) {
+                            VStack {
+                                // Display current currency
+                                AmountCounterView(badge: .coin, amount: gameSettings.currency)
+                                
+                                // Display current hearts
+                                AmountCounterView(badge: .heart, amount: gameSettings.hearts)
+                            }
+                            
+                            Spacer()
+                            
+                            NavigationLink {
+                                SettingsView()
+                            } label: {
+                                Image(.gear)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 70)
+                            }
+                        }
+                        .padding(.top)
+                        .padding(.horizontal)
+                        
+                        Spacer()
+                        
+                        Button {
+                            // Check if player has enough hearts to play
+                            if gameSettings.canStartGame() {
+                                // Use state variable to trigger navigation
+                                navigateToGame = true
+                            } else {
+                                // Show alert that player needs to get hearts
+                                showNotEnoughHeartsAlert = true
+                            }
+                        } label: {
+                            Image(.start)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: 180)
+                        }
+                        
+                        // Using NavigationLink with isActive binding
+                        NavigationLink(destination: GameView(), isActive: $navigateToGame) {
+                            EmptyView()
+                        }
+                        
+                        // Navigation link to shop
+                        NavigationLink(destination: ShopView(), isActive: $navigateToShop) {
+                            EmptyView()
+                        }
                     }
-                    
-                    // Navigation link to shop
-                    NavigationLink(destination: ShopView(), isActive: $navigateToShop) {
-                        EmptyView()
+                    .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
+                        Button("Shop") {
+                            navigateToShop = true
+                        }
+                        Button("Back", role: .cancel) {}
+                    } message: {
+                        Text("You are out of hearts. Purchase them from the in-game store to continue.")
                     }
                 }
-                .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
-                    Button("Shop") {
-                        navigateToShop = true
+                .navigationBarHidden(true)
+                .onAppear {
+                    if gameSettings.musicEnabled {
+                        SoundManager.shared.playBackgroundMusic()
                     }
-                    Button("Back", role: .cancel) {}
-                } message: {
-                    Text("You are out of hearts. Purchase them from the in-game store to continue.")
                 }
-            }
-            .navigationBarHidden(true)
-            .onAppear {
-                // Проверяем и включаем музыку при появлении экрана, если нужно
-                if gameSettings.musicEnabled {
-                    SoundManager.shared.playBackgroundMusic()
-                }
-            }
-            .onChange(of: scenePhase) { newPhase in
-                switch newPhase {
-                case .active:
-                    // Приложение стало активным - делегируем обработку в SoundManager
-                    SoundManager.shared.handleAppForeground()
-                case .background, .inactive:
-                    // Приложение ушло в фон - делегируем обработку в SoundManager
-                    SoundManager.shared.handleAppBackground()
-                @unknown default:
-                    break
+                .onChange(of: scenePhase) { newPhase in
+                    switch newPhase {
+                    case .active:
+                        SoundManager.shared.handleAppForeground()
+                    case .background, .inactive:
+                        SoundManager.shared.handleAppBackground()
+                    @unknown default:
+                        break
+                    }
                 }
             }
         }

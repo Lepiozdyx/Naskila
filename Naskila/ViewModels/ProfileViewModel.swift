@@ -15,12 +15,10 @@ class ProfileViewModel: ObservableObject {
     }
     
     init() {
-        // Загрузка ранее сохраненного выбора или установка значения по умолчанию
         self.selectedImageIndex = UserDefaults.standard.integer(forKey: "selectedProfileImageIndex")
         
-        // Если значение не было установлено ранее (будет 0 по умолчанию), но мы хотим явно проверить
         if !UserDefaults.standard.contains(key: "selectedProfileImageIndex") {
-            self.selectedImageIndex = 0 // Первое изображение по умолчанию
+            self.selectedImageIndex = 0
         }
     }
     
@@ -29,7 +27,6 @@ class ProfileViewModel: ObservableObject {
     }
     
     var selectedImageResource: ImageResource {
-        // Получаем ресурс изображения на основе выбранного индекса
         return getProfileImageResource(for: selectedImageIndex)
     }
     
@@ -47,7 +44,6 @@ class ProfileViewModel: ObservableObject {
     }
 }
 
-// Расширение для UserDefaults для удобной проверки существования ключа
 extension UserDefaults {
     func contains(key: String) -> Bool {
         return object(forKey: key) != nil

@@ -16,7 +16,6 @@ struct VaseButtonView: View {
     
     var body: some View {
         GeometryReader { geo in
-            // Вычисляем адаптивный размер на основе родительского представления
             let adaptiveSize = min(geo.size.width, geo.size.height)
             
             Button {

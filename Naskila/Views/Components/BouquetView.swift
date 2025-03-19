@@ -46,12 +46,9 @@ struct BouquetView: View {
         }
     }
     
-    // MARK: - Вспомогательные представления
-    
-    // Представление для несобранного букета (используется для .notPacked и .packing)
+    // MARK: -
     private func unpackedBouquetView(containerSize: CGFloat) -> some View {
         ZStack {
-            // Обычная обертка (если есть)
             if let wrappingImage = wrappingImage {
                 Image(wrappingImage)
                     .resizable()
@@ -60,10 +57,8 @@ struct BouquetView: View {
                     .transition(.opacity)
             }
             
-            // Показываем все цветы
             flowersView(containerSize: containerSize)
             
-            // Показываем глиттер
             if let glitterImage = glitterImage {
                 Image(glitterImage)
                     .resizable()
@@ -72,7 +67,6 @@ struct BouquetView: View {
                     .offset(y: -containerSize * 0.2)
             }
             
-            // Лента если есть
             if let ribbonImage = ribbonImage {
                 Image(ribbonImage)
                     .resizable()
@@ -81,7 +75,6 @@ struct BouquetView: View {
                     .offset(x: -containerSize * 0.2, y: containerSize * 0.25)
             }
             
-            // Показываем открытку
             if let cardImage = cardImage {
                 Image(cardImage)
                     .resizable()
@@ -92,19 +85,15 @@ struct BouquetView: View {
         }
     }
     
-    // Представление для упакованного букета
     private func packedBouquetView(containerSize: CGFloat) -> some View {
         ZStack {
-            // Нижняя часть обертки (первый слой)
             Image(.paper2)
                 .resizable()
                 .scaledToFit()
                 .frame(maxHeight: containerSize)
             
-            // Показываем все цветы между слоями обертки
             flowersView(containerSize: containerSize)
             
-            // Верхняя часть обертки (последний слой)
             Image(.paper3)
                 .resizable()
                 .scaledToFit()
@@ -121,7 +110,6 @@ struct BouquetView: View {
                 }
                 .transition(.opacity)
             
-            // Показываем глиттер
             if let glitterImage = glitterImage {
                 Image(glitterImage)
                     .resizable()
@@ -130,7 +118,6 @@ struct BouquetView: View {
                     .offset(y: -containerSize * 0.2)
             }
             
-            // Показываем открытку
             if let cardImage = cardImage {
                 Image(cardImage)
                     .resizable()
@@ -141,7 +128,6 @@ struct BouquetView: View {
         }
     }
     
-    // Общее представление для цветов, используемое во всех состояниях
     private func flowersView(containerSize: CGFloat) -> some View {
         Group {
             let allFlowers = bouquet.allFlowers
@@ -159,7 +145,6 @@ struct BouquetView: View {
         }
     }
     
-    // Проверка, содержит ли букет какие-либо элементы (цветы или аксессуары)
     private var hasBouquetElements: Bool {
         return !bouquet.allFlowers.isEmpty ||
                bouquet.wrapping != nil ||

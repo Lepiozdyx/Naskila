@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PauseView: View {
-    // Используем ObservedObject для отслеживания изменений настроек
     @ObservedObject private var settings = GameSettings.shared
     
     let resumeAction: () -> Void
@@ -61,11 +60,9 @@ struct PauseView: View {
                         imageSize: 35,
                         isOn: settings.soundEnabled,
                         action: {
-                            // Сохраняем текущее состояние перед изменением
                             let wasEnabled = settings.soundEnabled
                             settings.toggleSound()
-                            
-                            // Воспроизводим звук только если переключили звук с выключенного на включенный
+  
                             if !wasEnabled && settings.soundEnabled {
                                 settings.playSound()
                             }

@@ -26,7 +26,6 @@ struct AccessoryButtonView: View {
                 .frame(maxWidth: size)
         }
         .buttonStyle(.plain)
-//        .disabled(!isActive)
     }
 }
 

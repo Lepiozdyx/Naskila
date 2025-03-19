@@ -10,20 +10,14 @@ import Foundation
 class GameSettings: ObservableObject {
     static let shared = GameSettings()
     
-    // Флаг для предотвращения рекурсивных вызовов
     private var isUpdatingSettings = false
     
     @Published var soundEnabled: Bool = false {
         didSet {
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
-            
-            // Сохраняем настройку
             saveSettings()
-            
-            // Публикуем уведомление для других компонентов
             NotificationCenter.default.post(name: .soundSettingChanged, object: soundEnabled)
-            
             isUpdatingSettings = false
         }
     }
@@ -32,13 +26,8 @@ class GameSettings: ObservableObject {
         didSet {
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
-            
-            // Сохраняем настройку
             saveSettings()
-            
-            // Публикуем уведомление для других компонентов
             NotificationCenter.default.post(name: .musicSettingChanged, object: musicEnabled)
-            
             isUpdatingSettings = false
         }
     }
@@ -67,7 +56,6 @@ class GameSettings: ObservableObject {
         currency = defaults.integer(forKey: "currency")
         hearts = defaults.integer(forKey: "hearts") != 0 ? defaults.integer(forKey: "hearts") : GameConstants.initialHearts
         
-        // Уведомляем о загрузке настроек
         NotificationCenter.default.post(name: .settingsLoaded, object: nil)
     }
     
@@ -78,8 +66,6 @@ class GameSettings: ObservableObject {
         defaults.set(currency, forKey: "currency")
         defaults.set(hearts, forKey: "hearts")
     }
-    
-    // Остальные методы без изменений
     
     func addCurrency(_ amount: Int) {
         currency += amount
@@ -106,7 +92,6 @@ class GameSettings: ObservableObject {
         return false
     }
     
-    // Методы для управления настройками
     func toggleSound() {
         soundEnabled.toggle()
     }
@@ -115,7 +100,6 @@ class GameSettings: ObservableObject {
         musicEnabled.toggle()
     }
     
-    // Метод для воспроизведения звука, если он включен
     func playSound() {
         if soundEnabled {
             SoundManager.shared.playSound()
@@ -123,7 +107,6 @@ class GameSettings: ObservableObject {
     }
 }
 
-// Расширение для имен уведомлений
 extension Notification.Name {
     static let soundSettingChanged = Notification.Name("soundSettingChanged")
     static let musicSettingChanged = Notification.Name("musicSettingChanged")

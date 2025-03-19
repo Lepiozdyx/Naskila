@@ -15,7 +15,6 @@ class SoundManager {
     private var soundEffectPlayer: AVAudioPlayer?
     private var isBackgroundMusicPrepared = false
     
-    // Локальное хранение настроек для уменьшения связности
     private var isMusicEnabled = false
     private var isSoundEnabled = false
     
@@ -23,11 +22,9 @@ class SoundManager {
         setupBackgroundMusic()
         setupNotifications()
         
-        // Инициализируем локальные настройки
         isMusicEnabled = GameSettings.shared.musicEnabled
         isSoundEnabled = GameSettings.shared.soundEnabled
         
-        // Применяем начальные настройки
         if isMusicEnabled {
             playBackgroundMusic()
         }
@@ -52,7 +49,6 @@ class SoundManager {
     }
     
     private func setupNotifications() {
-        // Подписываемся на уведомления об изменении настроек
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleSoundSettingChanged(_:)),
@@ -96,11 +92,9 @@ class SoundManager {
     }
     
     @objc private func handleSettingsLoaded() {
-        // Синхронизируем локальные настройки с глобальными
         isMusicEnabled = GameSettings.shared.musicEnabled
         isSoundEnabled = GameSettings.shared.soundEnabled
         
-        // Применяем настройки
         if isMusicEnabled {
             playBackgroundMusic()
         } else {
@@ -111,10 +105,8 @@ class SoundManager {
     // MARK: - Public methods
     
     func playBackgroundMusic() {
-        // Проверяем локальную настройку и готовность плеера
         guard isMusicEnabled && isBackgroundMusicPrepared else { return }
         
-        // Проверяем, не воспроизводится ли музыка уже
         if let player = backgroundMusicPlayer, !player.isPlaying {
             player.play()
         }
@@ -125,7 +117,6 @@ class SoundManager {
     }
     
     func playSound(named soundName: String = "sound") {
-        // Проверяем локальную настройку
         guard isSoundEnabled else { return }
         
         guard let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") else {
@@ -142,7 +133,6 @@ class SoundManager {
         }
     }
     
-    // Упрощенные методы для обработки состояний приложения
     func handleAppBackground() {
         stopBackgroundMusic()
     }

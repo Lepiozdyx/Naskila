@@ -5,14 +5,12 @@
 //  Created by Alex on 13.03.2025.
 //
 
-//  GameViewModel.swift
-
 import Foundation
 import Combine
 import SwiftUI
 
 class GameViewModel: ObservableObject {
-    // MARK: - Опубликованные свойства для обновления UI
+    // MARK: - Published properties
     @Published var currentOrder: Order
     @Published var currentBouquet = Bouquet()
     @Published var vases: [VaseState]
@@ -23,39 +21,39 @@ class GameViewModel: ObservableObject {
     @ObservedObject var settings: GameSettings
     @Published var customerTransition: CustomerTransition = .none
     @Published var bouquetPackagingState: BouquetPackagingState = .notPacked
-    @Published var isAchievementButtonAvailable: Bool = true  // Новое свойство для кнопки достижений
+    @Published var isAchievementButtonAvailable: Bool = true  // Property for achievement button
     
-    // MARK: - Приватные свойства
+    // MARK: - Private properties
     private var timer: AnyCancellable?
     private var vaseTimers: [UUID: AnyCancellable] = [:]
     private var isTimerRunning: Bool = false
     
-    // MARK: - Инициализатор
+    // MARK: - Initializer
     init() {
-        // Используем единый экземпляр настроек
+        // Use the shared instance of settings
         self.settings = GameSettings.shared
         
-        // Инициализация ваз для каждого цвета
+        // Initialize vases for each color
         self.vases = FlowerColor.allCases.map { VaseState(color: $0) }
         
-        // Создание первого заказа и клиента
+        // Create the first order and customer
         self.currentOrder = Order.random()
         self.currentCustomer = Customer.random()
         
-        // Установка времени уровня
+        // Set the level time
         self.remainingTime = GameConstants.timePerLevel
         
-        // Инициализация пустого букета
+        // Initialize empty bouquet
         self.currentBouquet = Bouquet()
     }
     
-    // MARK: - Методы управления игрой
+    // MARK: - Game management methods
     
-    /// Запускает игру и таймер
+    /// Starts the game and timer
     func startGame() {
-        // Проверяем, достаточно ли сердечек для начала игры
+        // Check if there are enough hearts to start the game
         guard settings.canStartGame() else {
-            // Выходим без запуска игры, если сердечек недостаточно
+            // Exit without starting the game if not enough hearts
             gameOverlay = .none
             return
         }
@@ -63,92 +61,92 @@ class GameViewModel: ObservableObject {
         resetGame()
         startTimer()
         
-        // Воспроизведение музыки при начале игры, если она включена
+        // Play background music when starting the game if enabled
         if settings.musicEnabled {
             SoundManager.shared.playBackgroundMusic()
         }
     }
     
-    /// Сбрасывает игру в начальное состояние
+    /// Resets the game to initial state
     func resetGame() {
-        // Сброс геймплея
+        // Reset gameplay
         customersServed = 0
         remainingTime = GameConstants.timePerLevel
         currentOrder = Order.random()
         currentCustomer = Customer.random()
         currentBouquet = Bouquet()
         bouquetPackagingState = .notPacked
-        isAchievementButtonAvailable = true  // Сбрасываем доступность кнопки достижений
+        isAchievementButtonAvailable = true  // Reset achievement button availability
         
-        // Сброс ваз
+        // Reset vases
         for i in 0..<vases.count {
             vases[i].clear()
         }
         
-        // Сброс оверлея
+        // Reset overlay
         gameOverlay = .none
         
-        // Отмена всех таймеров
+        // Cancel all timers
         cancelAllTimers()
     }
     
-    /// Приостанавливает игру
+    /// Pauses the game
     func pauseGame() {
         if isTimerRunning {
             cancelAllTimers()
             gameOverlay = .pause
             
-            // Воспроизведение звука при паузе
+            // Play sound when pausing if enabled
             if settings.soundEnabled {
                 SoundManager.shared.playSound()
             }
         }
     }
     
-    /// Возобновляет игру
+    /// Resumes the game
     func resumeGame() {
         if gameOverlay == .pause {
             gameOverlay = .none
             startTimer()
             
-            // Воспроизведение звука при возобновлении
+            // Play sound when resuming if enabled
             if settings.soundEnabled {
                 SoundManager.shared.playSound()
             }
         }
     }
     
-    /// Завершает уровень с победой
+    /// Completes the level with victory
     private func completeLevel() {
         cancelAllTimers()
-        // Добавляем валюту за победу
+        // Add currency for victory
         settings.addCurrency(GameConstants.victoryReward)
-        // Добавляем сердечко за победу
+        // Add heart for victory
         settings.addHearts(GameConstants.heartRewardPerVictory)
         gameOverlay = .victory
         
-        // Воспроизведение звука при победе
+        // Play sound for victory if enabled
         if settings.soundEnabled {
             SoundManager.shared.playSound()
         }
     }
     
-    /// Завершает уровень с поражением
+    /// Completes the level with defeat
     private func failLevel() {
         cancelAllTimers()
-        // Вычитаем сердечко за поражение
+        // Subtract heart for defeat
         settings.addHearts(-GameConstants.heartPenaltyPerDefeat)
         gameOverlay = .defeat
         
-        // Воспроизведение звука при поражении
+        // Play sound for defeat if enabled
         if settings.soundEnabled {
             SoundManager.shared.playSound()
         }
     }
     
-    // MARK: - Методы таймеров
+    // MARK: - Timer methods
     
-    /// Запускает основной таймер уровня
+    /// Starts the main level timer
     private func startTimer() {
         isTimerRunning = true
         
@@ -157,71 +155,71 @@ class GameViewModel: ObservableObject {
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 
-                // Обновление времени уровня
+                // Update level time
                 if self.remainingTime > 0 {
                     self.remainingTime -= 0.1
                     
-                    // Проверка времени
+                    // Check time
                     if self.remainingTime <= 0 {
                         self.remainingTime = 0
                         
-                        // Проверка условия поражения
+                        // Check defeat condition
                         if self.customersServed < GameConstants.customersPerLevel {
                             self.failLevel()
                         }
                     }
                 }
                 
-                // Обновление таймеров ваз
+                // Update vase timers
                 for i in 0..<self.vases.count {
                     self.vases[i].updateTimer(delta: 0.1)
                 }
             }
     }
     
-    /// Отменяет все таймеры
+    /// Cancels all timers
     private func cancelAllTimers() {
         isTimerRunning = false
         timer?.cancel()
     }
     
-    // MARK: - Методы управления букетом
+    // MARK: - Bouquet management methods
     
-    /// Берет цветок из вазы указанного цвета
+    /// Takes flower from vase of specified color
     func takeFlowerFromVase(color: FlowerColor) {
-        // Находим вазу соответствующего цвета
+        // Find vase of corresponding color
         if let index = vases.firstIndex(where: { $0.color == color }) {
-            // Проверяем, можно ли взять цветок
+            // Check if flower can be taken
             if !vases[index].isDisabled && vases[index].count > 0 {
-                // Берем цветок из вазы
+                // Take flower from vase
                 if let flower = vases[index].takeFlower() {
-                    // Добавляем цветок в букет
+                    // Add flower to bouquet
                     currentBouquet.addFlower(item: flower)
                     
-                    // Воспроизведение звука при взятии цветка
+                    // Play sound when taking flower if enabled
                     if settings.soundEnabled {
                         SoundManager.shared.playSound()
                     }
                     
-                    // Проверяем, выполнен ли заказ
+                    // Check if order is complete
                     checkOrderCompletion()
                 }
             }
         }
     }
     
-    /// Добавляет цветок в вазу указанного цвета
+    /// Adds flower to vase of specified color
     func addFlowerToVase(color: FlowerColor) {
-        // Находим вазу соответствующего цвета
+        // Find vase of corresponding color
         if let index = vases.firstIndex(where: { $0.color == color }) {
-            // Добавляем цветок в вазу
+            // Add flower to vase
             if vases[index].addFlower() {
-                // Воспроизведение звука при добавлении цветка
+                // Play sound when adding flower if enabled
                 if settings.soundEnabled {
                     SoundManager.shared.playSound()
                 }
                 
-                // Если есть активный таймер для этой вазы, отменяем его
+                // If there is an active timer for this vase, cancel it
                 if let timer = vaseTimers[vases[index].id] {
                     timer.cancel()
                     vaseTimers.removeValue(forKey: vases[index].id)
@@ -230,64 +228,64 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    /// Добавляет аксессуар к букету
+    /// Adds accessory to bouquet
     func addAccessory(_ type: AccessoryType) {
-        // Проверяем, нужен ли этот аксессуар по заказу и еще не добавлен
+        // Check if this accessory is needed by the order and not already added
         if currentOrder.needsAccessory(type) && !currentBouquet.hasAccessory(type) {
-            // Создаем аксессуар со случайным изображением
+            // Create accessory with random image
             let accessory = AccessoryItem.random(type: type)
             
-            // Добавляем аксессуар в букет
+            // Add accessory to bouquet
             currentBouquet.addAccessory(item: accessory)
             
-            // Воспроизведение звука при добавлении аксессуара
+            // Play sound when adding accessory if enabled
             if settings.soundEnabled {
                 SoundManager.shared.playSound()
             }
             
-            // Проверяем, выполнен ли заказ
+            // Check if order is complete
             checkOrderCompletion()
         }
     }
     
-    /// Проверяет, соответствует ли букет заказу
+    /// Checks if bouquet matches order
     private func checkOrderCompletion() {
         if currentBouquet.matches(order: currentOrder) {
-            // Заказ выполнен, обрабатываем завершение
+            // Order complete, handle completion
             completeOrder()
         }
     }
     
-    // MARK: - Новый метод для кнопки достижений
+    // MARK: - Achievement button method
     
-    /// Автоматически выполняет текущий заказ
+    /// Automatically completes current order
     func useAchievementButton() {
-        // Проверяем, доступна ли кнопка
+        // Check if button is available
         guard isAchievementButtonAvailable else { return }
         
-        // Воспроизведение звука при использовании достижения
+        // Play sound when using achievement if enabled
         if settings.soundEnabled {
             SoundManager.shared.playSound()
         }
         
-        // Отмечаем кнопку как использованную
+        // Mark button as used
         isAchievementButtonAvailable = false
         
-        // Создаем букет, соответствующий текущему заказу
+        // Create bouquet matching current order
         let completeBouquet = createCompleteBouquet(for: currentOrder)
         
-        // Устанавливаем собранный букет
+        // Set assembled bouquet
         currentBouquet = completeBouquet
         
-        // Выполняем заказ
+        // Complete order
         completeOrder()
     }
     
-    /// Создает букет, соответствующий заказу
+    /// Creates bouquet matching order
     private func createCompleteBouquet(for order: Order) -> Bouquet {
         var bouquet = Bouquet()
         
-        // Добавляем нужное количество каждого цвета цветов
+        // Add required number of each color flower
         for _ in 0..<order.redFlowers {
             bouquet.addFlower(item: FlowerItem.random(color: .red))
         }
@@ -304,7 +302,7 @@ class GameViewModel: ObservableObject {
             bouquet.addFlower(item: FlowerItem.random(color: .pink))
         }
         
-        // Добавляем аксессуары, если нужно
+        // Add accessories if needed
         if order.needWrapping {
             bouquet.addAccessory(item: AccessoryItem.random(type: .wrapping))
         }
@@ -324,56 +322,56 @@ class GameViewModel: ObservableObject {
         return bouquet
     }
     
-    /// Обрабатывает завершение заказа
+    /// Handles order completion
     private func completeOrder() {
-        // Начисляем валюту за выполнение заказа
+        // Award currency for completing order
         settings.addCurrency(GameConstants.orderCompletionReward)
         
-        // Воспроизведение звука при завершении заказа
+        // Play sound when completing order if enabled
         if settings.soundEnabled {
             SoundManager.shared.playSound()
         }
         
-        // Запускаем анимацию упаковки
+        // Start packaging animation
         self.bouquetPackagingState = .packing
         
-        // Первый этап упаковки
+        // First stage of packaging
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
             guard let self = self else { return }
             self.bouquetPackagingState = .packed
             
-            // После завершения упаковки продолжаем с анимацией клиента
+            // After packaging completion continue with customer animation
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 guard let self = self else { return }
                 
-                // Увеличиваем счетчик обслуженных клиентов
+                // Increase served customers counter
                 self.customersServed += 1
                 
-                // Анимация ухода текущего клиента
+                // Animation of current customer leaving
                 self.customerTransition = .leaving
                 
-                // Задержка для анимации
+                // Delay for animation
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     guard let self = self else { return }
                     
-                    // Проверяем, достигнута ли цель по количеству клиентов
+                    // Check if goal for number of customers is reached
                     if self.customersServed >= GameConstants.customersPerLevel {
                         self.completeLevel()
                         return
                     }
                     
-                    // Генерируем новый заказ и нового клиента
+                    // Generate new order and new customer
                     self.currentOrder = Order.random()
                     self.currentCustomer = Customer.random()
                     
-                    // Сбрасываем букет и состояние упаковки
+                    // Reset bouquet and packaging state
                     self.currentBouquet.reset()
                     self.bouquetPackagingState = .notPacked
                     
-                    // Анимация появления нового клиента
+                    // Animation of new customer entering
                     self.customerTransition = .entering
                     
-                    // Сброс анимации
+                    // Reset animation
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.customerTransition = .none
                     }
@@ -382,50 +380,50 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Вспомогательные методы
+    // MARK: - Helper methods
     
-    // Добавляем новый метод clearWorkspace() для очистки рабочей поверхности
+    // Add new clearWorkspace() method to clear work surface
     func clearWorkspace() {
-        // Сбрасываем текущий букет, сохраняя текущий заказ
+        // Reset current bouquet, keeping current order
         currentBouquet.reset()
         
-        // Сбрасываем состояние упаковки букета
+        // Reset bouquet packaging state
         bouquetPackagingState = .notPacked
         
-        // Воспроизведение звука при очистке рабочей поверхности
+        // Play sound when clearing work surface if enabled
         if settings.soundEnabled {
             SoundManager.shared.playSound()
         }
     }
     
-    /// Проверяет, активен ли определенный аксессуар для текущего заказа
+    /// Checks if specific accessory is active for current order
     func isAccessoryActive(_ type: AccessoryType) -> Bool {
         return type.isActive(for: currentOrder)
     }
     
-    /// Возвращает процент оставшегося времени
+    /// Returns percentage of remaining time
     var timePercentage: Double {
         return remainingTime / GameConstants.timePerLevel
     }
     
-    /// Возвращает отформатированное оставшееся время (мм:сс)
+    /// Returns formatted remaining time (mm:ss)
     var formattedTime: String {
         let minutes = Int(remainingTime) / 60
         let seconds = Int(remainingTime) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    /// Включает/выключает звук
+    /// Toggles sound on/off
     func toggleSound() {
         settings.toggleSound()
     }
 
-    /// Включает/выключает музыку
+    /// Toggles music on/off
     func toggleMusic() {
         settings.toggleMusic()
     }
 
-    /// Воспроизводит звук, если он включен
+    /// Plays sound if enabled
     func playSound() {
         settings.playSound()
     }

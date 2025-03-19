@@ -35,26 +35,20 @@ struct Order {
         }
     }
     
-    // Метод для генерации случайного заказа
     static func random() -> Order {
-        // Максимальное общее количество цветов в заказе
         let maxTotalFlowers = 4
         
-        // Генерируем общее количество цветов (от 1 до 4)
         let totalFlowersInOrder = Int.random(in: 1...maxTotalFlowers)
         
-        // Распределяем цветы по типам
         var flowerTypes = [Int](repeating: 0, count: 4) // red, white, blue, pink
         
-        // Гарантируем, что будет хотя бы один цветок (случайного типа)
         let firstFlowerType = Int.random(in: 0..<4)
         flowerTypes[firstFlowerType] = 1
         
-        // Распределяем оставшиеся цветы (если есть)
         var remainingFlowers = totalFlowersInOrder - 1
         while remainingFlowers > 0 {
             let randomType = Int.random(in: 0..<4)
-            // Ограничиваем максимальное количество цветов одного типа до 3
+            
             if flowerTypes[randomType] < 3 {
                 flowerTypes[randomType] += 1
                 remainingFlowers -= 1
