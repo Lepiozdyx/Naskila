@@ -23,10 +23,10 @@ struct AccessoryButtonView: View {
             Image(image)
                 .resizable()
                 .scaledToFit()
-                .frame(width: size)
+                .frame(maxWidth: size)
         }
         .buttonStyle(.plain)
-        .disabled(!isActive)
+//        .disabled(!isActive)
     }
 }
 

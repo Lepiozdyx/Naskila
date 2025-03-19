@@ -15,34 +15,43 @@ struct VaseButtonView: View {
     let action: () -> Void
     
     var body: some View {
-        Button {
-            action()
-        } label: {
-            Image(.vase)
-                .resizable()
-                .scaledToFit()
-                .frame(width: size)
-                .background {
-                    // Display flowers in the vase
-                    HStack(spacing: -28) {
-                        ForEach(0..<count, id: \.self) { _ in
-                            Image(color.displayName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 35)
-                                .offset(y: -25)
+        GeometryReader { geo in
+            // Вычисляем адаптивный размер на основе родительского представления
+            let adaptiveSize = min(geo.size.width, geo.size.height)
+            
+            Button {
+                action()
+            } label: {
+                Image(.vase)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: adaptiveSize)
+                    .background {
+                        // Display flowers in the vase
+                        HStack(spacing: -adaptiveSize * 0.45) {
+                            ForEach(0..<count, id: \.self) { _ in
+                                Image(color.displayName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: adaptiveSize * 0.55)
+                                    .offset(y: -adaptiveSize * 0.4)
+                            }
                         }
+                        .offset(x: -adaptiveSize * 0.02)
                     }
-                    .offset(x: -1)
-                }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            if isDisabled {
-                TimerView()
             }
+            .overlay(alignment: .bottomTrailing) {
+                if isDisabled {
+                    TimerView()
+                        .frame(width: adaptiveSize * 0.4)
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(isDisabled || count == 0)
+            .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
-        .buttonStyle(.plain)
-        .disabled(isDisabled || count == 0)
+        .aspectRatio(1, contentMode: .fit)
+        .frame(maxWidth: size, maxHeight: size)
     }
 }
 

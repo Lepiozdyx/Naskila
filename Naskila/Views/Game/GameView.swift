@@ -15,6 +15,9 @@ struct GameView: View {
     var body: some View {
         GeometryReader { geo in
             let height = geo.size.height
+            let width = geo.size.width
+            // Вычисляем относительный размер для кнопок на основе ширины экрана
+            let buttonScale = min(width / 800, 2)
             
             ZStack {
                 MainBackgroundView(imageName: .fon1)
@@ -44,7 +47,7 @@ struct GameView: View {
                             .resizable()
                             .frame(height: height * 0.6)
                             .overlay(alignment: .bottom) {
-                                HStack(spacing: 150) {
+                                HStack(spacing: width * 0.15) {
                                     
                                     // MARK: Achievement button
                                     Button {
@@ -53,13 +56,13 @@ struct GameView: View {
                                         Image(.getBouquet)
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 50)
+                                            .frame(maxWidth: 50 * buttonScale)
                                             .overlay {
                                                 if !viewModel.isAchievementButtonAvailable {
                                                     Image(.locker)
                                                         .resizable()
                                                         .scaledToFit()
-                                                        .frame(width: 25)
+                                                        .frame(maxWidth: 25 * buttonScale)
                                                         .transition(.scale)
                                                 }
                                             }
@@ -75,7 +78,7 @@ struct GameView: View {
                                         Image(.cleanup)
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 50)
+                                            .frame(maxWidth: 50 * buttonScale)
                                     }
                                 }
                                 .padding(.trailing)
@@ -87,21 +90,21 @@ struct GameView: View {
                             VStack(spacing: 0) {
                                 AccessoryButtonView(
                                     image: .card3,
-                                    size: 40,
+                                    size: 40 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.card)
                                 ) {
                                     viewModel.addAccessory(.card)
                                 }
                                 AccessoryButtonView(
                                     image: .card2,
-                                    size: 40,
+                                    size: 40 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.card)
                                 ) {
                                     viewModel.addAccessory(.card)
                                 }
                                 AccessoryButtonView(
                                     image: .card1,
-                                    size: 40,
+                                    size: 40 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.card)
                                 ) {
                                     viewModel.addAccessory(.card)
@@ -113,7 +116,7 @@ struct GameView: View {
                             VStack(spacing: 0) {
                                 AccessoryButtonView(
                                     image: .paperbox,
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.wrapping)
                                 ) {
                                     viewModel.addAccessory(.wrapping)
@@ -121,7 +124,7 @@ struct GameView: View {
                                 
                                 AccessoryButtonView(
                                     image: .glitterbox,
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.glitter)
                                 ) {
                                     viewModel.addAccessory(.glitter)
@@ -129,7 +132,7 @@ struct GameView: View {
                                 
                                 AccessoryButtonView(
                                     image: .ribbonbox,
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     isActive: viewModel.isAccessoryActive(.ribbon)
                                 ) {
                                     viewModel.addAccessory(.ribbon)
@@ -138,10 +141,10 @@ struct GameView: View {
                             .padding(.trailing)
                             
                             // MARK: First pair of vases
-                            VStack(spacing: 30) {
+                            VStack(spacing: height * 0.05) {
                                 // Red vase
                                 VaseButtonView(
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     color: .red,
                                     count: viewModel.vases[0].count,
                                     isDisabled: viewModel.vases[0].isDisabled,
@@ -150,7 +153,7 @@ struct GameView: View {
                                 
                                 // White vase
                                 VaseButtonView(
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     color: .white,
                                     count: viewModel.vases[1].count,
                                     isDisabled: viewModel.vases[1].isDisabled,
@@ -165,15 +168,15 @@ struct GameView: View {
                                 bouquet: viewModel.currentBouquet,
                                 packagingState: viewModel.bouquetPackagingState
                             )
-                            .frame(width: 200, height: 200)
+                            .frame(width: 200 * buttonScale, height: 200 * buttonScale)
                             
                             Spacer()
                             
                             // MARK: Second pair of vases
-                            VStack(spacing: 30) {
+                            VStack(spacing: height * 0.05) {
                                 // Blue vase
                                 VaseButtonView(
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     color: .blue,
                                     count: viewModel.vases[2].count,
                                     isDisabled: viewModel.vases[2].isDisabled,
@@ -182,7 +185,7 @@ struct GameView: View {
                                 
                                 // Pink vase
                                 VaseButtonView(
-                                    size: 60,
+                                    size: 60 * buttonScale,
                                     color: .pink,
                                     count: viewModel.vases[3].count,
                                     isDisabled: viewModel.vases[3].isDisabled,
@@ -198,6 +201,7 @@ struct GameView: View {
                                     viewModel.addFlowerToVase(color: .blue)
                                     viewModel.addFlowerToVase(color: .pink)
                                 })
+                                .frame(width: 170 * buttonScale, height: 150 * buttonScale)
                             }
                         }
                         .padding(.horizontal, 60)

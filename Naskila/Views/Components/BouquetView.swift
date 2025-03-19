@@ -28,43 +28,48 @@ struct BouquetView: View {
     }
     
     var body: some View {
-        ZStack {
-            if hasBouquetElements {
-                switch packagingState {
-                case .notPacked, .packing:
-                    unpackedBouquetView
-                case .packed:
-                    packedBouquetView
+        GeometryReader { geo in
+            let containerSize = min(geo.size.width, geo.size.height)
+            
+            ZStack {
+                if hasBouquetElements {
+                    switch packagingState {
+                    case .notPacked, .packing:
+                        unpackedBouquetView(containerSize: containerSize)
+                    case .packed:
+                        packedBouquetView(containerSize: containerSize)
+                    }
                 }
             }
+            .position(x: geo.size.width / 2, y: geo.size.height / 2)
+            .animation(.easeInOut(duration: 0.5), value: packagingState)
         }
-        .animation(.easeInOut(duration: 0.5), value: packagingState)
     }
     
     // MARK: - Вспомогательные представления
     
     // Представление для несобранного букета (используется для .notPacked и .packing)
-    private var unpackedBouquetView: some View {
+    private func unpackedBouquetView(containerSize: CGFloat) -> some View {
         ZStack {
             // Обычная обертка (если есть)
             if let wrappingImage = wrappingImage {
                 Image(wrappingImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxHeight: 200)
+                    .frame(maxHeight: containerSize)
                     .transition(.opacity)
             }
             
             // Показываем все цветы
-            flowersView
+            flowersView(containerSize: containerSize)
             
             // Показываем глиттер
             if let glitterImage = glitterImage {
                 Image(glitterImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 100)
-                    .offset(y: -40)
+                    .frame(width: containerSize * 0.5)
+                    .offset(y: -containerSize * 0.2)
             }
             
             // Лента если есть
@@ -72,8 +77,8 @@ struct BouquetView: View {
                 Image(ribbonImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50)
-                    .offset(x: -40, y: 50)
+                    .frame(width: containerSize * 0.25)
+                    .offset(x: -containerSize * 0.2, y: containerSize * 0.25)
             }
             
             // Показываем открытку
@@ -81,37 +86,37 @@ struct BouquetView: View {
                 Image(cardImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 45)
-                    .offset(x: 40, y: 50)
+                    .frame(width: containerSize * 0.22)
+                    .offset(x: containerSize * 0.2, y: containerSize * 0.25)
             }
         }
     }
     
     // Представление для упакованного букета
-    private var packedBouquetView: some View {
+    private func packedBouquetView(containerSize: CGFloat) -> some View {
         ZStack {
             // Нижняя часть обертки (первый слой)
             Image(.paper2)
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 200)
+                .frame(maxHeight: containerSize)
             
             // Показываем все цветы между слоями обертки
-            flowersView
+            flowersView(containerSize: containerSize)
             
             // Верхняя часть обертки (последний слой)
             Image(.paper3)
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 100)
-                .offset(y: 50)
+                .frame(maxHeight: containerSize * 0.5)
+                .offset(y: containerSize * 0.25)
                 .overlay(alignment: .bottom) {
                     if let ribbonImage = ribbonImage {
                         Image(ribbonImage)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 90)
-                            .offset(x: 10, y: 45)
+                            .frame(width: containerSize * 0.45)
+                            .offset(x: containerSize * 0.05, y: containerSize * 0.22)
                     }
                 }
                 .transition(.opacity)
@@ -121,8 +126,8 @@ struct BouquetView: View {
                 Image(glitterImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 100)
-                    .offset(y: -40)
+                    .frame(width: containerSize * 0.5)
+                    .offset(y: -containerSize * 0.2)
             }
             
             // Показываем открытку
@@ -130,26 +135,26 @@ struct BouquetView: View {
                 Image(cardImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 45)
-                    .offset(x: 45, y: 50)
+                    .frame(width: containerSize * 0.22)
+                    .offset(x: containerSize * 0.22, y: containerSize * 0.25)
             }
         }
     }
     
     // Общее представление для цветов, используемое во всех состояниях
-    private var flowersView: some View {
+    private func flowersView(containerSize: CGFloat) -> some View {
         Group {
             let allFlowers = bouquet.allFlowers
             if !allFlowers.isEmpty {
-                HStack(spacing: -20) {
+                HStack(spacing: -containerSize * 0.1) {
                     ForEach(allFlowers) { flower in
                         Image(flower.image)
                             .resizable()
-                            .frame(width: 45, height: 105)
-                            .offset(y: -35)
+                            .frame(width: containerSize * 0.22, height: containerSize * 0.52)
+                            .offset(y: -containerSize * 0.17)
                     }
                 }
-                .frame(maxWidth: 200)
+                .frame(maxWidth: containerSize)
             }
         }
     }
@@ -180,5 +185,5 @@ struct BouquetView: View {
     previewBouquet.addAccessory(item: AccessoryItem(type: .card, image: .card1))
     
     return BouquetView(bouquet: previewBouquet, packagingState: .packing)
-//    return BouquetView(bouquet: previewBouquet, packagingState: .packed)
+        .frame(width: 200, height: 200)
 }
