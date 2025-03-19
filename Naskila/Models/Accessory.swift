@@ -14,7 +14,7 @@ enum AccessoryType: String, CaseIterable, Identifiable {
     
     var displayName: [ImageResource] {
         switch self {
-        case .wrapping: return [.paper1, .paper2, .paper3]
+        case .wrapping: return [.paper1]
         case .ribbon: return [.ribbon]
         case .glitter: return [.glitter]
         case .card: return [.card1, .card2, .card3]

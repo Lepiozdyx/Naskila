@@ -48,19 +48,25 @@ struct GameView: View {
                                     
                                     // MARK: Achievement button
                                     Button {
-                                        // get bouquet achievement
+                                        viewModel.useAchievementButton()
                                     } label: {
                                         Image(.getBouquet)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 50)
                                             .overlay {
-                                                Image(.locker)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: 25)
+                                                if !viewModel.isAchievementButtonAvailable {
+                                                    Image(.locker)
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 25)
+                                                        .transition(.scale)
+                                                }
                                             }
                                     }
+                                    .disabled(!viewModel.isAchievementButtonAvailable)
+                                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.isAchievementButtonAvailable)
+                                    
                                     
                                     // MARK: Cleanup button
                                     Button {

@@ -5,6 +5,8 @@
 //  Created by Alex on 13.03.2025.
 //
 
+//  GameViewModel.swift
+
 import Foundation
 import Combine
 import SwiftUI
@@ -21,6 +23,7 @@ class GameViewModel: ObservableObject {
     @ObservedObject var settings: GameSettings
     @Published var customerTransition: CustomerTransition = .none
     @Published var bouquetPackagingState: BouquetPackagingState = .notPacked
+    @Published var isAchievementButtonAvailable: Bool = true  // Новое свойство для кнопки достижений
     
     // MARK: - Приватные свойства
     private var timer: AnyCancellable?
@@ -75,6 +78,7 @@ class GameViewModel: ObservableObject {
         currentCustomer = Customer.random()
         currentBouquet = Bouquet()
         bouquetPackagingState = .notPacked
+        isAchievementButtonAvailable = true  // Сбрасываем доступность кнопки достижений
         
         // Сброс ваз
         for i in 0..<vases.count {
@@ -252,6 +256,72 @@ class GameViewModel: ObservableObject {
             // Заказ выполнен, обрабатываем завершение
             completeOrder()
         }
+    }
+    
+    // MARK: - Новый метод для кнопки достижений
+    
+    /// Автоматически выполняет текущий заказ
+    func useAchievementButton() {
+        // Проверяем, доступна ли кнопка
+        guard isAchievementButtonAvailable else { return }
+        
+        // Воспроизведение звука при использовании достижения
+        if settings.soundEnabled {
+            SoundManager.shared.playSound()
+        }
+        
+        // Отмечаем кнопку как использованную
+        isAchievementButtonAvailable = false
+        
+        // Создаем букет, соответствующий текущему заказу
+        let completeBouquet = createCompleteBouquet(for: currentOrder)
+        
+        // Устанавливаем собранный букет
+        currentBouquet = completeBouquet
+        
+        // Выполняем заказ
+        completeOrder()
+    }
+    
+    /// Создает букет, соответствующий заказу
+    private func createCompleteBouquet(for order: Order) -> Bouquet {
+        var bouquet = Bouquet()
+        
+        // Добавляем нужное количество каждого цвета цветов
+        for _ in 0..<order.redFlowers {
+            bouquet.addFlower(item: FlowerItem.random(color: .red))
+        }
+        
+        for _ in 0..<order.whiteFlowers {
+            bouquet.addFlower(item: FlowerItem.random(color: .white))
+        }
+        
+        for _ in 0..<order.blueFlowers {
+            bouquet.addFlower(item: FlowerItem.random(color: .blue))
+        }
+        
+        for _ in 0..<order.pinkFlowers {
+            bouquet.addFlower(item: FlowerItem.random(color: .pink))
+        }
+        
+        // Добавляем аксессуары, если нужно
+        if order.needWrapping {
+            bouquet.addAccessory(item: AccessoryItem.random(type: .wrapping))
+        }
+        
+        if order.needRibbon {
+            bouquet.addAccessory(item: AccessoryItem.random(type: .ribbon))
+        }
+        
+        if order.needGlitter {
+            bouquet.addAccessory(item: AccessoryItem.random(type: .glitter))
+        }
+        
+        if order.needCard {
+            bouquet.addAccessory(item: AccessoryItem.random(type: .card))
+        }
+        
+        return bouquet
     }
     
     /// Обрабатывает завершение заказа
