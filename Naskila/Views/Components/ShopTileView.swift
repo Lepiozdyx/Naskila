@@ -79,7 +79,6 @@ struct ShopTileView: View {
     }
 }
 
-// Для сопоставления изображения с числовым значением
 extension ImageResource {
     var priceValue: Int {
         switch self {
@@ -110,7 +109,7 @@ extension ImageResource {
             hearts: ._10,
             priceAmount: 25000,
             heartsAmount: 10,
-            isAffordable: true,
+            isAffordable: false,
             action: {}
         )
         ShopTileView(
@@ -119,7 +118,7 @@ extension ImageResource {
             hearts: ._5,
             priceAmount: 15000,
             heartsAmount: 5,
-            isAffordable: false,
+            isAffordable: true,
             action: {}
         )
     }

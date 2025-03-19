@@ -116,7 +116,6 @@ struct MainMenuView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
-                // Refresh game settings when view appears
                 gameSettings.save()
             }
         }
