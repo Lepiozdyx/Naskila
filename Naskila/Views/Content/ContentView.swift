@@ -18,11 +18,20 @@ struct ContentView: View {
             case .webView:
                 if let url = root.webManager.targetURL {
                     WebViewManager(url: url, webManager: root.webManager)
+                        .onAppear {
+                            OrientationManager.shared.unlockOrientation()
+                        }
                 } else {
                     WebViewManager(url: NetworkManager.initialURL, webManager: root.webManager)
+                        .onAppear {
+                            OrientationManager.shared.unlockOrientation()
+                        }
                 }
             case .mainMenu:
                 MainMenuView()
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
             }
         }
         .onAppear {

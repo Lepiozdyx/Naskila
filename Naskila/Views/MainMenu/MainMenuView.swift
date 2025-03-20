@@ -18,120 +18,141 @@ struct MainMenuView: View {
     
     var body: some View {
         NavigationView {
-            OrientationView(requiredOrientation: .landscape) {
-                ZStack {
-                    MainBackgroundView(imageName: .fon)
+            ZStack {
+                MainBackgroundView(imageName: .fon)
+                
+                HStack {
+                    Spacer()
+                    
+                    NavigationLink {
+                        ProfileView(viewModel: viewModel)
+                            .onAppear {
+                                OrientationManager.shared.lockLandscape()
+                            }
+                    } label: {
+                        Image(viewModel.selectedImageResource)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 70)
+                            .shadow(color: .black, radius: 2, x: 1, y: 2)
+                    }
+                }
+                .padding(.trailing)
+                
+                VStack {
+                    Spacer()
                     
                     HStack {
                         Spacer()
                         
                         NavigationLink {
-                            ProfileView(viewModel: viewModel)
+                            ShopView()
+                                .onAppear {
+                                    OrientationManager.shared.lockLandscape()
+                                }
                         } label: {
-                            Image(viewModel.selectedImageResource)
+                            Image(.shop)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80)
+                        }
+                    }
+                }
+                .padding(.trailing)
+                .padding(.bottom)
+                
+                VStack {
+                    HStack(alignment: .top) {
+                        VStack {
+                            // Display current currency
+                            AmountCounterView(badge: .coin, amount: gameSettings.currency)
+                            
+                            // Display current hearts
+                            AmountCounterView(badge: .heart, amount: gameSettings.hearts)
+                        }
+                        
+                        Spacer()
+                        
+                        NavigationLink {
+                            SettingsView()
+                                .onAppear {
+                                    OrientationManager.shared.lockLandscape()
+                                }
+                        } label: {
+                            Image(.gear)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 70)
-                                .shadow(color: .black, radius: 2, x: 1, y: 2)
                         }
                     }
-                    .padding(.trailing)
+                    .padding(.top)
+                    .padding(.horizontal)
                     
-                    VStack {
-                        Spacer()
-                        
-                        HStack {
-                            Spacer()
-                            
-                            NavigationLink {
-                                ShopView()
-                            } label: {
-                                Image(.shop)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 80)
-                            }
-                        }
-                    }
-                    .padding(.trailing)
-                    .padding(.bottom)
+                    Spacer()
                     
-                    VStack {
-                        HStack(alignment: .top) {
-                            VStack {
-                                // Display current currency
-                                AmountCounterView(badge: .coin, amount: gameSettings.currency)
-                                
-                                // Display current hearts
-                                AmountCounterView(badge: .heart, amount: gameSettings.hearts)
-                            }
-                            
-                            Spacer()
-                            
-                            NavigationLink {
-                                SettingsView()
-                            } label: {
-                                Image(.gear)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 70)
-                            }
+                    Button {
+                        // Check if player has enough hearts to play
+                        if gameSettings.canStartGame() {
+                            // Use state variable to trigger navigation
+                            navigateToGame = true
+                        } else {
+                            // Show alert that player needs to get hearts
+                            showNotEnoughHeartsAlert = true
                         }
-                        .padding(.top)
-                        .padding(.horizontal)
-                        
-                        Spacer()
-                        
-                        Button {
-                            // Check if player has enough hearts to play
-                            if gameSettings.canStartGame() {
-                                // Use state variable to trigger navigation
-                                navigateToGame = true
-                            } else {
-                                // Show alert that player needs to get hearts
-                                showNotEnoughHeartsAlert = true
-                            }
-                        } label: {
-                            Image(.start)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: 180)
-                        }
-                        
-                        // Using NavigationLink with isActive binding
-                        NavigationLink(destination: GameView(), isActive: $navigateToGame) {
-                            EmptyView()
-                        }
-                        
-                        // Navigation link to shop
-                        NavigationLink(destination: ShopView(), isActive: $navigateToShop) {
-                            EmptyView()
-                        }
+                    } label: {
+                        Image(.start)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 180)
                     }
-                    .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
-                        Button("Shop") {
-                            navigateToShop = true
-                        }
-                        Button("Back", role: .cancel) {}
-                    } message: {
-                        Text("You are out of hearts. Purchase them from the in-game store to continue.")
+                    
+                    // Using NavigationLink with isActive binding
+                    NavigationLink(
+                        destination:
+                            GameView()
+                            .onAppear {
+                                OrientationManager.shared.lockLandscape()
+                            }
+                        ,isActive: $navigateToGame
+                    ) {
+                        EmptyView()
+                    }
+                    
+                    // Navigation link to shop
+                    NavigationLink(
+                        destination:
+                            ShopView()
+                            .onAppear {
+                                OrientationManager.shared.lockLandscape()
+                            },
+                            isActive: $navigateToShop
+                    ) {
+                        EmptyView()
                     }
                 }
-                .navigationBarHidden(true)
-                .onAppear {
-                    if gameSettings.musicEnabled {
-                        SoundManager.shared.playBackgroundMusic()
+                .alert("Not enough hearts", isPresented: $showNotEnoughHeartsAlert) {
+                    Button("Shop") {
+                        navigateToShop = true
                     }
+                    Button("Back", role: .cancel) {}
+                } message: {
+                    Text("You are out of hearts. Purchase them from the in-game store to continue.")
                 }
-                .onChange(of: scenePhase) { newPhase in
-                    switch newPhase {
-                    case .active:
-                        SoundManager.shared.handleAppForeground()
-                    case .background, .inactive:
-                        SoundManager.shared.handleAppBackground()
-                    @unknown default:
-                        break
-                    }
+            }
+            .navigationBarHidden(true)
+            .onAppear {
+                if gameSettings.musicEnabled {
+                    SoundManager.shared.playBackgroundMusic()
+                }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                switch newPhase {
+                case .active:
+                    SoundManager.shared.handleAppForeground()
+                case .background, .inactive:
+                    SoundManager.shared.handleAppBackground()
+                @unknown default:
+                    break
                 }
             }
         }

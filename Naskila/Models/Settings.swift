@@ -12,7 +12,7 @@ class GameSettings: ObservableObject {
     
     private var isUpdatingSettings = false
     
-    @Published var soundEnabled: Bool = false {
+    @Published var soundEnabled: Bool = true {
         didSet {
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
@@ -21,8 +21,8 @@ class GameSettings: ObservableObject {
             isUpdatingSettings = false
         }
     }
-    
-    @Published var musicEnabled: Bool = false {
+
+    @Published var musicEnabled: Bool = true {
         didSet {
             guard !isUpdatingSettings else { return }
             isUpdatingSettings = true
